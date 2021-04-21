@@ -4,6 +4,7 @@
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
+    window.setFramerateLimit(60);
 
     Menu menu(window.getSize().x, window.getSize().y);
 
@@ -17,6 +18,7 @@ int main() {
         window.clear();
 
         menu.draw(window);
+        menu.MouseCheck(window);
 
         window.display();
     }

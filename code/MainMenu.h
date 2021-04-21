@@ -12,10 +12,11 @@ public:
 	void draw(sf::RenderWindow &window);
 	void MoveUp();
 	void MoveDown();
+	void MouseCheck(sf::RenderWindow& window);
 
 private:
 	int selectedItemIndex;
 	sf::Font font;
 	sf::Text text[MAX_NUMBER_OF_ITEMS];
-
+	sf::RectangleShape hitboxes[MAX_NUMBER_OF_ITEMS];
 };
