@@ -23,13 +23,13 @@ add_custom_target(copy_resources ALL COMMAND ${CMAKE_COMMAND}
 )
 
 #### Practical 1 ####
-file(GLOB_RECURSE SOURCES practical_1/*.cpp practical_1/*.h)
-add_executable(PRACTICAL_1 ${SOURCES})
-target_include_directories(PRACTICAL_1 PRIVATE ${SFML_INCS})
-target_link_libraries(PRACTICAL_1 sfml-graphics)
+file(GLOB_RECURSE SOURCES code/*.cpp code/*.h)
+add_executable(CODE ${SOURCES})
+target_include_directories(CODE PRIVATE ${SFML_INCS})
+target_link_libraries(CODE sfml-graphics)
 
-set_target_properties(PRACTICAL_1 
+set_target_properties(CODE
     PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$(Configuration)
 )
-add_dependencies(PRACTICAL_1 copy_resources)
+add_dependencies(CODE copy_resources)
