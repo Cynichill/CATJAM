@@ -9,12 +9,12 @@ Menu::Menu(float width, float height)
 	}
 
 	text[0].setFont(font);
-	text[0].setColor(sf::Color::Red);
+	text[0].setColor(sf::Color::Black);
 	text[0].setString("Play");
 	text[0].setPosition(sf::Vector2f(width / 2, height / (MAX_NUMBER_OF_ITEMS + 1) * 1));
 	hitboxes[0].setPosition(sf::Vector2f(width / 2.1, height / (MAX_NUMBER_OF_ITEMS + 1) * 0.9));
 	hitboxes[0].setSize(sf::Vector2f(200, 100));
-	hitboxes[0].setFillColor(sf::Color::Blue);
+	hitboxes[0].setFillColor(sf::Color::White);
 
 	text[1].setFont(font);
 	text[1].setColor(sf::Color::Black);
@@ -39,36 +39,12 @@ Menu::~Menu()
 {
 }
 
-void Menu::draw(sf::RenderWindow &window)
+void Menu::draw(sf::RenderWindow& window)
 {
 	for (int i = 0; i < MAX_NUMBER_OF_ITEMS; i++)
 	{
 		window.draw(hitboxes[i]);
 		window.draw(text[i]);
-	}
-}
-
-void Menu::MoveUp()
-{
-	if (selectedItemIndex - 1 >= 0)
-	{
-		text[selectedItemIndex].setColor(sf::Color::Black);
-		hitboxes[selectedItemIndex].setFillColor(sf::Color::White);
-		selectedItemIndex--;
-		text[selectedItemIndex].setColor(sf::Color::Red);
-		hitboxes[selectedItemIndex].setFillColor(sf::Color::Blue);
-	}
-}
-
-void Menu::MoveDown()
-{
-	if (selectedItemIndex + 1 < MAX_NUMBER_OF_ITEMS)
-	{
-		text[selectedItemIndex].setColor(sf::Color::Black);
-		hitboxes[selectedItemIndex].setFillColor(sf::Color::White);
-		selectedItemIndex++;
-		text[selectedItemIndex].setColor(sf::Color::Red);
-		hitboxes[selectedItemIndex].setFillColor(sf::Color::Blue);
 	}
 }
 
@@ -81,16 +57,15 @@ void Menu::MouseCheck(sf::RenderWindow& window)
 			text[i].setColor(sf::Color::Red);
 			hitboxes[i].setFillColor(sf::Color::Blue);
 
-			for (int j = 0; j < MAX_NUMBER_OF_ITEMS; j++)
+			if (i == 2 && sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
-				if (j != i)
-				{
-					text[j].setColor(sf::Color::Black);
-					hitboxes[j].setFillColor(sf::Color::White);
-				}
+				window.close();
 			}
-
-			selectedItemIndex = i;
+		}
+		else
+		{
+			text[i].setColor(sf::Color::Black);
+			hitboxes[i].setFillColor(sf::Color::White);
 		}
 	}
 }

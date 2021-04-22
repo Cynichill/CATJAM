@@ -1,26 +1,88 @@
-#pragma once
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
+#include <iostream>
 #include "MainMenu.h"
 
-int main() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
-    window.setFramerateLimit(60);
+int main()
+{
+	sf::RenderWindow window(sf::VideoMode(600, 600), "SFML WORK!");
 
-    Menu menu(window.getSize().x, window.getSize().y);
+	Menu menu(window.getSize().x, window.getSize().y);
 
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-        }
-        window.clear();
+	while (window.isOpen())
+	{
+		sf::Event event;
 
-        menu.draw(window);
-        menu.MouseCheck(window);
+		while (window.pollEvent(event))
+		{
+			switch (event.type)
+			{
+				case sf::Event::KeyReleased:
+				switch (event.key.code)
+				{
+					case sf::Keyboard::Up:
+						menu.MoveUp();
+						break;
 
-        window.display();
-    }
-    return 0;
+					case sf::Keyboard::Down:
+						menu.MoveDown();
+						break;
+
+					case sf::Keyboard::Enter:
+			
+						switch (menu.GetPressedItem())
+						{
+						case 0:
+							std::cout << "Play button has been pressed" << std::endl;
+							break;
+						case 1:
+							std::cout << "Option button has been pressed" << std::endl;
+							break;
+						case 2:
+							window.close();
+							break;
+						}
+
+					break;
+				}
+
+				case sf::Event::MouseButtonPressed:
+
+					switch (event.mouseButton.button)
+					{
+					case sf::Mouse::Left:
+
+						switch (menu.GetPressedItem())
+						{
+						case 0:
+							std::cout << "Play button has been pressed" << std::endl;
+							break;
+						case 1:
+							std::cout << "Option button has been pressed" << std::endl;
+							break;
+						case 2:
+							window.close();
+							break;
+						}
+
+						break;
+					}
+
+
+				break;
+			case sf::Event::Closed:
+				window.close();
+
+				break;
+
+			}
+		}
+
+		window.clear();
+
+
+		menu.draw(window);
+		menu.MouseCheck(window);
+
+		window.display();
+	}
 }

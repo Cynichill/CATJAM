@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include <SFML/Graphics.hpp>
 
 #define MAX_NUMBER_OF_ITEMS 3
@@ -9,11 +10,10 @@ public:
 	Menu(float width, float height);
 	~Menu();
 
-	void draw(sf::RenderWindow &window);
+	void draw(sf::RenderWindow& window);
 	void MoveUp();
 	void MoveDown();
 	void MouseCheck(sf::RenderWindow& window);
-	int GetPressedItem() { return selectedItemIndex; }
 
 private:
 	int selectedItemIndex;
