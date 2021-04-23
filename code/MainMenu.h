@@ -16,6 +16,7 @@ public:
 	int GetPressedItem() { return selectedItemIndex; }
 	void MenuControls(sf::RenderWindow& window);
 	void MenuTransition(float width, float height);
+	void destory();
 
 private:
 	int selectedItemIndex;
@@ -26,4 +27,5 @@ private:
 	int menuCheck;
 	float storeWidth;
 	float storeHeight;
+	int maxDraw;
 };
