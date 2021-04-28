@@ -1,6 +1,9 @@
 #pragma once
 
 #include "engine.h"
+#include <SFML/Graphics.hpp>
+
+#define MAX_NUMBER_OF_ITEMS 4
 
 class MenuScene : public Scene {
 public:
@@ -10,4 +13,5 @@ public:
   void Load() override;
 
   void Update(const double& dt) override;
+
 };

@@ -17,3 +17,5 @@ void TextComponent::SetText(const std::string& str) {
   _string = str;
   _text.setString(_string);
 }
+
+sf::Text& TextComponent::getText() { return _text; }
