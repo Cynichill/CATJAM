@@ -9,6 +9,8 @@
 using namespace std;
 using namespace sf;
 
+shared_ptr<TextComponent> t[4];
+
 void MenuScene::Load() {
   cout << "Menu Load \n";
   {
@@ -52,17 +54,19 @@ void MenuScene::Load() {
 	  text[2] = "Options";
 	  text[3] = "Quit Game";
 
-	for (int i = 0; i < 4; ++i) {
-		shared_ptr<Entity> txt = makeEntity();
+	  shared_ptr<Entity> txt = makeEntity();
 
-		auto t = txt->addComponent<TextComponent>(
+	for (int i = 0; i < 4; ++i) {
+
+		    t[i] =  txt->addComponent<TextComponent>(
 			text[i]);
 		//Sets the text + hitboxes for the main menu
 		//We have an array of text and hitboxes which contain each item in the menu
 
-		t->getText().setColor(sf::Color::Red); //Sets colour of text
-		t->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
+		t[i]->getText().setColor(sf::Color::Red); //Sets colour of text
+		t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
 	}
+
 
   }
   setLoaded(true);
