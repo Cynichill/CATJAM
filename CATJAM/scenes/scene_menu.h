@@ -16,6 +16,22 @@ public:
 
   void Update(const double& dt) override;
 
-  void Render() override;
+  void MouseCheck();
+  void Highlight();
+  void MenuChange();
+  void MenuControls();
+  void MoveUp();
+  void MoveDown();
+  void KeyPress();
+  void MenuSelect();
+  void setSize();
 
+private:
+	int selected;
+	int changeMenu;
+	int maxDraw;
+	bool keyPressed;
+	float widthStore;
+	float heightStore;
+	bool fullscreen;
 };
