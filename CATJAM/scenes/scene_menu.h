@@ -12,6 +12,8 @@ public:
 
   void Load() override;
 
+  void UnLoad() override;
+
   void Update(const double& dt) override;
 
   void MouseCheck();
@@ -22,10 +24,14 @@ public:
   void MoveDown();
   void KeyPress();
   void MenuSelect();
+  void setSize();
 
 private:
 	int selected;
 	int changeMenu;
 	int maxDraw;
 	bool keyPressed;
+	float widthStore;
+	float heightStore;
+	bool fullscreen;
 };
