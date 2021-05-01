@@ -27,6 +27,10 @@ public:
 
 	std::map<std::string, int>& getInventory();
 
+	void changeItem(const std::string& key, const int& value);
+
+	int getItem(const std::string& key);
+	
 protected:
 
 	std::string _name;

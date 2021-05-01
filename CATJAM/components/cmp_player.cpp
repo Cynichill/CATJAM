@@ -31,3 +31,9 @@ void PlayerComponent::SetInventory(const std::map<std::string, int> inv) {
 
 std::map<std::string, int>& PlayerComponent::getInventory() { return _inventory; }
 
+void PlayerComponent::changeItem(const std::string& key, const int& value) {
+    _inventory[key] = value;
+}
+
+int PlayerComponent::getItem(const std::string& key) { return _inventory[key]; }
+
