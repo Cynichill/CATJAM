@@ -9,12 +9,11 @@
 using namespace std;
 using namespace sf;
 
-shared_ptr<TextComponent> t[4];
-
 void MenuScene::Load() {
   cout << "Menu Load \n";
-  {
 
+  shared_ptr<TextComponent> t[4];
+  {
 	  shared_ptr<Entity> box = makeEntity();
 
 	  auto h = box->addComponent<ShapeComponent>();
@@ -67,9 +66,13 @@ void MenuScene::Load() {
 		t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
 	}
 
-
   }
   setLoaded(true);
+}
+
+void MenuScene::UnLoad() {
+	cout << "Menu Scene Unload" << endl;
+	Scene::UnLoad();
 }
 
 void MenuScene::Update(const double& dt) {
@@ -80,4 +83,9 @@ void MenuScene::Update(const double& dt) {
   }
 
   Scene::Update(dt);
+}
+
+void MenuScene::Render() {
+
+	Scene::Render();
 }
