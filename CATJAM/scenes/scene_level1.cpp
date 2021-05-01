@@ -49,7 +49,7 @@ void Level1Scene::Load() {
   {
       player = makeEntity();
 
-      p = player->addComponent<PlayerComponent>("PlayerName", 2000.00);
+    //  p = player->addComponent<PlayerComponent>("PlayerName", 2000.00);
   }
 
   Level1Scene::LoadGame();
@@ -108,6 +108,7 @@ void Level1Scene::SaveGame() {
         saveFile.close();
     }
 
+    /*
     {
         //Save Player Data
         std::ofstream saveFile("playerFile.txt", std::ofstream::out);
@@ -118,6 +119,7 @@ void Level1Scene::SaveGame() {
 
         saveFile.close();
     }
+    */
 }
 
 void Level1Scene::LoadGame() {
@@ -154,7 +156,7 @@ void Level1Scene::LoadGame() {
             cout << "Failed to load from file" << endl;
         }
     }
-
+    /*
     {
         //Load Player Data
         ifstream myfile("playerFile.txt");
@@ -177,4 +179,5 @@ void Level1Scene::LoadGame() {
             cout << "Failed to load from file" << endl;
         }
     }
+    */
 }
