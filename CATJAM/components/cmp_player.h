@@ -1,13 +1,13 @@
 #pragma once
-
-#include <SFML/Graphics/Text.hpp>
 #include <ecm.h>
+#include <string>
+#include <SFML/Graphics/Text.hpp>
 
 class PlayerComponent : public Component {
 public:
 	PlayerComponent() = delete;
 
-	explicit PlayerComponent(Entity* p, std::string name, double currency, std::map<std::string, int> inventory);
+	explicit PlayerComponent(Entity* p, std::string name, double currency);
 
 	void update(double dt) override;
 
@@ -30,6 +30,8 @@ public:
 	void changeItem(const std::string& key, const int& value);
 
 	int getItem(const std::string& key);
+
+	void baseInventory();
 	
 protected:
 

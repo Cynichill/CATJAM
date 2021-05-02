@@ -8,11 +8,23 @@ void PlayerComponent::render() {}
 
 
 //Constructor
-PlayerComponent::PlayerComponent(Entity* p, std::string name, double currency, std::map<std::string, int> inventory) 
-    : Component(p), _name(name), _currency(currency), _inventory(inventory) {}
+PlayerComponent::PlayerComponent(Entity* p, std::string name, double currency) 
+    : Component(p), _name(name), _currency(currency) {}
 
 
 //Getters and Setters
+
+void PlayerComponent::baseInventory() {
+
+    _inventory["CannedCatFood"] = 0;
+    _inventory["Tuna"] = 0;
+    _inventory["Salmon"] = 0;
+    _inventory["Catnip"] = 0;
+    _inventory["DryCatMix"] = 0;
+    _inventory["WetCatMix"] = 0;
+    _inventory["MysteryMeat"] = 0;
+
+}
 void PlayerComponent::SetName(const std::string& str) {
     _name = str;
 }
