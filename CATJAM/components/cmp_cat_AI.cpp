@@ -126,6 +126,7 @@ void CatAI::update(double dt) {
 
 void CatAI::PickWanderLocation()
 {
+    srand(time(NULL));
 
     auto empty = ls::findTiles(ls::EMPTY);
 

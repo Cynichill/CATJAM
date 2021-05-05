@@ -181,3 +181,24 @@ void CatComponent::SetBond(const float flo) {
 }
 
 float& CatComponent::getBond() { return _stats[7]; }
+
+void CatComponent::gainStats(std::vector<float> vec) {
+
+   
+    for (int i = 0; i < 8; i++) {
+
+        if (_stats[i] + vec[i] <= 100.0f && _stats[i] + vec[i] > -1.0f)
+        {
+            _stats[i] += vec[i];
+        }
+        else if (_stats[i] + vec[i] < 0.0f)
+        {
+            _stats[i] = 0.0f;
+        }
+        else if (_stats[i] + vec[i] > 100.0f)
+        {
+            _stats[i] = 100.0f;
+        }
+
+    }
+}

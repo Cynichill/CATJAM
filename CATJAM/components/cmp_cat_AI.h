@@ -2,6 +2,7 @@
 
 #include "cmp_physics.h"
 #include <chrono>
+#include <ctime>
 
 class CatAI : public PhysicsComponent {
 protected:

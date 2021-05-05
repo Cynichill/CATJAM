@@ -4,11 +4,13 @@
 #include "../components/cmp_sprite.h"
 #include "../components/cmp_clock.h"
 #include "../components/cmp_cat_AI.h"
+#include "../components/cmp_item.h";
 #include "../game.h"
 #include <LevelSystem.h>
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <ctime>
 
 using namespace std;
 using namespace sf;
@@ -16,11 +18,21 @@ using namespace sf;
 static shared_ptr<Entity> cat;
 static shared_ptr<Entity> player;
 static shared_ptr<Entity> clockTime;
+std::vector<shared_ptr<Entity>> items;
+static shared_ptr<Entity> item;
+bool itemCreated = true;
+bool itemClicked = true;
+std::string storeItem;
 std::shared_ptr<CatComponent> c;
+std::vector<std::shared_ptr<ItemComponent>> i;
+std::vector<std::shared_ptr<SpriteComponent>>s;
 std::shared_ptr<PlayerComponent> p;
 std::shared_ptr<ClockComponent> cl;
 
+
 void Level1Scene::Load() {
+
+    srand(time(NULL));
 
     cout << " Scene 1 Load" << endl;
     ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
@@ -45,13 +57,8 @@ void Level1Scene::Load() {
         cat = makeEntity();
         cat->setPosition(ls::getTilePosition(ls::findTiles(ls::START)[0]));
         c = cat->addComponent<CatComponent>("Tabby", "Fluffy", "Female", "CannedCatFood", 4);
-       
-        auto sh = cat->addComponent<ShapeComponent>();
-        sh->setShape<sf::RectangleShape>(Vector2f(60.f, 40.f));
-        sh->getShape().setFillColor(Color::Blue); 
-        sh->getShape().setOrigin(30.f, 20.f);
-   
-        std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();;
+      
+        std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
 
         if (!spritesheet->loadFromFile("res/sprites/tabbyCat.png")) {
             cerr << "Failed to load spritesheet!" << std::endl;
@@ -60,7 +67,7 @@ void Level1Scene::Load() {
         auto sp = cat->addComponent<SpriteComponent>();
         sp->setTexture(spritesheet);
         sp->getSprite().setOrigin(50.f, 50.f);
-        
+
         auto a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f));
         a->PickWanderLocation();
     }
@@ -75,7 +82,6 @@ void Level1Scene::Load() {
     {
 
         clockTime = makeEntity();
-
         cl = clockTime->addComponent<ClockComponent>();
 
     }
@@ -97,16 +103,69 @@ void Level1Scene::UnLoad() {
     c.reset();
     p.reset();
     cl.reset();
+
+    for (int k = 0; k < i.size(); k++)
+    {
+        items[k].reset();
+        i[k].reset();
+        s[k].reset();
+    }
+    
     Scene::UnLoad();
 }
 
 void Level1Scene::Update(const double& dt) {
-
-
-    if (sf::Keyboard::isKeyPressed(Keyboard::Space)) {
-        Engine::ChangeScene(&menu);
-    }
     
+    if (itemClicked)
+    {
+        itemClicked = false;
+        storeItem = "CannedCatFood";
+    }
+    if (sf::Keyboard::isKeyPressed(Keyboard::Space)) 
+    {
+        itemCreated = false;
+
+        item = makeEntity();
+
+        auto j = item->addComponent<ItemComponent>(storeItem);
+
+        j->baseItems();
+
+        auto is = item->addComponent<SpriteComponent>();
+
+        std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
+
+        if (!spritesheet->loadFromFile(j->GetSpriteLocation(storeItem))) {
+            cerr << "Failed to load spritesheet!" << std::endl;
+        }
+
+        is->setTexture(spritesheet);
+        is->getSprite().setOrigin(50.f, 50.f);
+
+        auto empty = ls::findTiles(ls::EMPTY);
+
+        int randomIndex = rand() % empty.size();
+
+        item->setPosition(ls::getTilePosition(empty[randomIndex]) + Vector2f(20.f, 20.f));
+        i.push_back(j);
+        s.push_back(is);
+        items.push_back(item);
+    }
+
+    int range = 60;
+    for (int k = 0; k < items.size(); k++)
+    {
+       
+        if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
+        {
+            c->gainStats(i[k]->GetStats(i[k]->GetKey()));
+
+            items[k]->setForDelete();
+            items.erase(items.begin() + k);
+            i.erase(i.begin() + k);
+            s.erase(s.begin() + k);
+        }
+    }
     Scene::Update(dt);
 }
 
