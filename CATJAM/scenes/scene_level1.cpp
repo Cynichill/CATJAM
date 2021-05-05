@@ -3,6 +3,7 @@
 #include "../components/cmp_player.h"
 #include "../components/cmp_sprite.h"
 #include "../components/cmp_clock.h"
+#include "../components/cmp_cat_AI.h"
 #include "../game.h"
 #include <LevelSystem.h>
 #include <iostream>
@@ -21,32 +22,47 @@ std::shared_ptr<ClockComponent> cl;
 
 void Level1Scene::Load() {
 
+    cout << " Scene 1 Load" << endl;
+    ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
+
+    auto ho = Engine::getWindowSize().y - (ls::getHeight() * 40.f);
+    ls::setOffset(Vector2f(0, ho));
+
+    // Add physics colliders to level tiles.
+    {
+        auto walls = ls::findTiles(ls::WALL);
+        for (auto w : walls) {
+            auto pos = ls::getTilePosition(w);
+            pos += Vector2f(20.f, 20.f); //offset to center
+            auto e = makeEntity();
+            e->setPosition(pos);
+            e->addComponent<PhysicsComponent>(false, Vector2f(40.f, 40.f));
+        }
+    }
+
     // Create Cat
     {
         cat = makeEntity();
-
+        cat->setPosition(ls::getTilePosition(ls::findTiles(ls::START)[0]));
         c = cat->addComponent<CatComponent>("Tabby", "Fluffy", "Female", "CannedCatFood", 4);
-
-        cat->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / 2));
-
-        /*
+       
         auto sh = cat->addComponent<ShapeComponent>();
-        sh->setShape<sf::RectangleShape>(Vector2f(20.f, 30.f));
-        sh->getShape().setFillColor(Color::Blue);
-        sh->getShape().setOrigin(10.f, 15.f);
-        */
-
+        sh->setShape<sf::RectangleShape>(Vector2f(60.f, 40.f));
+        sh->getShape().setFillColor(Color::Blue); 
+        sh->getShape().setOrigin(30.f, 20.f);
+   
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();;
-
 
         if (!spritesheet->loadFromFile("res/sprites/tabbyCat.png")) {
             cerr << "Failed to load spritesheet!" << std::endl;
         }
 
         auto sp = cat->addComponent<SpriteComponent>();
-
         sp->setTexture(spritesheet);
-
+        sp->getSprite().setOrigin(50.f, 50.f);
+        
+        auto a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f));
+        a->PickWanderLocation();
     }
 
     {
@@ -96,11 +112,11 @@ void Level1Scene::Update(const double& dt) {
 
 void Level1Scene::Render() {
 
+    ls::render(Engine::GetWindow());
     Scene::Render();
 }
 
 void Level1Scene::SaveGame() {
-
 
     {
         //Save Cat Data
