@@ -22,9 +22,9 @@ public:
   void MenuControls();
   void MoveUp();
   void MoveDown();
-  void KeyPress();
   void MenuSelect();
   void setSize();
+  bool controllerType();
 
 private:
 	int selected;
@@ -34,4 +34,5 @@ private:
 	float widthStore;
 	float heightStore;
 	bool fullscreen;
+	bool controller;
 };

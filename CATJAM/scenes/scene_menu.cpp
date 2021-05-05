@@ -74,6 +74,7 @@ void MenuScene::Load() {
 	  widthStore = 800;
 	  heightStore = 600;
 	  fullscreen = false;
+	  controller = false;
   }
   setLoaded(true);
 }
@@ -213,7 +214,7 @@ void MenuScene::MenuSelect()
 		{
 		case 0:
 			UnLoad();
-			Engine::ChangeScene(&level1);
+			Engine::ChangeScene(&level2);
 			break;
 		case 1:
 			std::cout << "Load game button has been pressed" << std::endl;
@@ -324,12 +325,22 @@ void MenuScene::MenuSelect()
 		switch (selected)
 		{
 		case 0:
+			if (fullscreen)
+			{
+				break;
+			}
+			else
 			fullscreen = true;
 			setSize();
 			break;
 		case 1:
-			fullscreen = false;
-			setSize();
+			if (fullscreen)
+			{
+				fullscreen = false;
+				setSize();
+				break;
+			}
+			else
 			break;
 		case 2:
 			changeMenu = 2;
@@ -505,4 +516,9 @@ void MenuScene::setSize()
 		t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
 	}
 
+}
+
+bool MenuScene::controllerType()
+{
+	return controller;
 }
