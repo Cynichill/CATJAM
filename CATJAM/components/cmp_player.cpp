@@ -16,6 +16,7 @@ PlayerComponent::PlayerComponent(Entity* p, std::string name, double currency)
 
 void PlayerComponent::baseInventory() {
 
+    //Create default inventory stats
     _inventory["CannedCatFood"] = 0;
     _inventory["Tuna"] = 0;
     _inventory["Salmon"] = 0;

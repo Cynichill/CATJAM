@@ -15,6 +15,8 @@ ItemComponent::ItemComponent(Entity* p, std::string key)
 
 void ItemComponent::baseItems() {
 
+    //Create values for each item, each item gives different stats
+
      _givenStats = {5.0f, 10.0f, 20.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.5f };
     _items["CannedCatFood"] = std::make_pair("res/sprites/cannedCatFood.png", _givenStats);
 

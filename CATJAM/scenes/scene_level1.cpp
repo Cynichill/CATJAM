@@ -20,7 +20,6 @@ static shared_ptr<Entity> player;
 static shared_ptr<Entity> clockTime;
 std::vector<shared_ptr<Entity>> items;
 static shared_ptr<Entity> item;
-bool itemCreated = true;
 bool itemClicked = true;
 std::string storeItem;
 std::shared_ptr<CatComponent> c;
@@ -31,9 +30,11 @@ std::shared_ptr<ClockComponent> cl;
 
 
 void Level1Scene::Load() {
-
+    
+    //Creates a new seed for randomization
     srand(time(NULL));
 
+    //Loads in the 'level', used as the boundary
     cout << " Scene 1 Load" << endl;
     ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
 
@@ -55,7 +56,11 @@ void Level1Scene::Load() {
     // Create Cat
     {
         cat = makeEntity();
+
+        //Set cat to start position
         cat->setPosition(ls::getTilePosition(ls::findTiles(ls::START)[0]));
+
+        //Initialize cat with variables
         c = cat->addComponent<CatComponent>("Tabby", "Fluffy", "Female", "CannedCatFood", 4);
       
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
@@ -64,21 +69,26 @@ void Level1Scene::Load() {
             cerr << "Failed to load spritesheet!" << std::endl;
         }
 
+        //Create cat's sprite
         auto sp = cat->addComponent<SpriteComponent>();
         sp->setTexture(spritesheet);
         sp->getSprite().setOrigin(50.f, 50.f);
 
+        //Add cat AI (pathfinding and state machine)
         auto a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f));
         a->PickWanderLocation();
     }
 
+    //Create player
     {
         player = makeEntity();
 
         p = player->addComponent<PlayerComponent>("PlayerName", 2000.00);
+        //Fill inventory
         p->baseInventory();
     }
 
+    //Create in game clock
     {
 
         clockTime = makeEntity();
@@ -116,21 +126,25 @@ void Level1Scene::UnLoad() {
 
 void Level1Scene::Update(const double& dt) {
     
+    //If inventory item selected, get key from inventory item
     if (itemClicked)
     {
         itemClicked = false;
         storeItem = "CannedCatFood";
     }
+
+    //If inventory item selected, create item
     if (sf::Keyboard::isKeyPressed(Keyboard::Space)) 
     {
-        itemCreated = false;
 
         item = makeEntity();
 
+        //Create item using key from inventory
         auto j = item->addComponent<ItemComponent>(storeItem);
 
         j->baseItems();
 
+        //Create sprite for item
         auto is = item->addComponent<SpriteComponent>();
 
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
@@ -142,24 +156,32 @@ void Level1Scene::Update(const double& dt) {
         is->setTexture(spritesheet);
         is->getSprite().setOrigin(50.f, 50.f);
 
+        //Choose random spot to place item on screen
         auto empty = ls::findTiles(ls::EMPTY);
 
         int randomIndex = rand() % empty.size();
 
         item->setPosition(ls::getTilePosition(empty[randomIndex]) + Vector2f(20.f, 20.f));
+
+        //Add item to list of items
         i.push_back(j);
         s.push_back(is);
         items.push_back(item);
     }
 
+    //Cat's detection range for items
     int range = 60;
+
+    //For each item..
     for (int k = 0; k < items.size(); k++)
     {
-       
+       //Calculate if the cat is nearby each item (HEAVILY INEFFICIENT, NEEDS REWORK)
         if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
         {
+            //If cat gets close to item, it eats the item and gains stats depending on what it ate
             c->gainStats(i[k]->GetStats(i[k]->GetKey()));
 
+            //Delete item and remove from lists
             items[k]->setForDelete();
             items.erase(items.begin() + k);
             i.erase(i.begin() + k);

@@ -2,7 +2,6 @@
 
 #include "cmp_physics.h"
 #include <chrono>
-#include <ctime>
 
 class CatAI : public PhysicsComponent {
 protected:
@@ -17,8 +16,6 @@ protected:
   bool _locationChosen = false;
 
   std::chrono::time_point<std::chrono::system_clock> _start;
-
-  
 
   bool isGrounded() const;
 

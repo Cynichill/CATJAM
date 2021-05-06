@@ -37,7 +37,8 @@ void CatAI::update(double dt) {
   if (pos.y > ls::getHeight() * ls::getTileSize()) {
     teleport(ls::getTilePosition(ls::findTiles(ls::START)[0]));
   }
-
+  
+  //If not close to target location, move towards it on the correct axis
   if ((pos.x < _wanderLocation.x - 5 && pos.x < _wanderLocation.x + 5) || (pos.x > _wanderLocation.x - 5 && pos.x > _wanderLocation.x + 5)) {
 
     // Moving Either Left or Right
@@ -69,6 +70,7 @@ void CatAI::update(double dt) {
       dampen({ 1.0f, 0.9f });
   }
 
+  //Once we arrive at the destination, do nothing for a few seconds
   if (_startTime)
   {
       _start = std::chrono::system_clock::now();
@@ -82,11 +84,12 @@ void CatAI::update(double dt) {
   //Find difference between dur and _start
   auto seconds = std::chrono::duration_cast<std::chrono::seconds>(dur - _start).count();
   
-  //If 30 seconds have passed since we got _start
+  //If 5 seconds have passed since we got _start
   if (seconds == 5)
   {
       if (!_locationChosen)
       {
+          //Choose new location to go to
           PickWanderLocation();
         
           _locationChosen = true;
@@ -94,6 +97,7 @@ void CatAI::update(double dt) {
       }
   }
 
+  //Once we arrive at the destination, start timer
   if ((pos.y > _wanderLocation.y - 5 && pos.y < _wanderLocation.y + 5) || (pos.x > _wanderLocation.x - 5 && pos.x < _wanderLocation.x + 5))
   {
       if (!_tPause)
@@ -126,8 +130,7 @@ void CatAI::update(double dt) {
 
 void CatAI::PickWanderLocation()
 {
-    srand(time(NULL));
-
+    //Choose random empty tile on map as target location
     auto empty = ls::findTiles(ls::EMPTY);
 
     int randomIndex = rand() % empty.size();
