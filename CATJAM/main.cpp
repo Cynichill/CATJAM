@@ -9,6 +9,7 @@ int height = 600;
 
 MenuScene menu;
 Level1Scene level1;
+Level2Scene level2;
 
 int main() {
   Engine::Start(width, height, "Platformer",&menu);

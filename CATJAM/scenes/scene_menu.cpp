@@ -214,7 +214,7 @@ void MenuScene::MenuSelect()
 		{
 		case 0:
 			UnLoad();
-			Engine::ChangeScene(&level2);
+			Engine::ChangeScene(&level1);
 			break;
 		case 1:
 			std::cout << "Load game button has been pressed" << std::endl;

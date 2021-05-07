@@ -16,4 +16,27 @@ public:
 
   void LoadGame();
 
+  void Highlight();
+
+  void Controls();
+
+  void MenuDrop();
+
+  void MouseUpdate();
+
+  void KeyboardUpdate();
+
+  void LoadMenu();
+
+  void UnLoadMenu();
+
+private:
+	bool hideMouse;
+	bool keyPressed;
+	bool menuDropped;
+	bool shopOpen;
+	bool selected;
+	float cursorSpeed;
+	bool controller;
+
 };
