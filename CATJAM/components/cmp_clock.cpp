@@ -22,7 +22,7 @@ void ClockComponent::update(double dt) {
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(dur - _start).count();
 
     //If 30 seconds have passed since we got _start
-    if (seconds >= 30)
+    if (seconds >= 5)
     {
         _tPassed = true;
         _resetTime = true;

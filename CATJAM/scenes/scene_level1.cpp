@@ -16,17 +16,28 @@ using namespace std;
 using namespace sf;
 
 static shared_ptr<Entity> cat;
+std::shared_ptr<CatComponent> c;
+std::shared_ptr<CatAI> a;
+
 static shared_ptr<Entity> player;
+std::shared_ptr<PlayerComponent> p;
+
 static shared_ptr<Entity> clockTime;
+std::shared_ptr<ClockComponent> cl;
+
 std::vector<shared_ptr<Entity>> items;
 static shared_ptr<Entity> item;
-bool itemClicked = true;
+std::vector<Vector2f> itemLocations;
+sf::Vector2f previousTarget;
 std::string storeItem;
-std::shared_ptr<CatComponent> c;
+
 std::vector<std::shared_ptr<ItemComponent>> i;
 std::vector<std::shared_ptr<SpriteComponent>>s;
-std::shared_ptr<PlayerComponent> p;
-std::shared_ptr<ClockComponent> cl;
+
+
+bool getTime = false;
+std::string storeTime;
+bool itemClicked = true;
 
 
 void Level1Scene::Load() {
@@ -75,8 +86,9 @@ void Level1Scene::Load() {
         sp->getSprite().setOrigin(50.f, 50.f);
 
         //Add cat AI (pathfinding and state machine)
-        auto a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f));
-        a->PickWanderLocation();
+        a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f));
+        a->PickTarget("WANDER");
+        a->SetChosen(true);
     }
 
     //Create player
@@ -111,6 +123,7 @@ void Level1Scene::UnLoad() {
     player.reset();
     clockTime.reset();
     c.reset();
+    a.reset();
     p.reset();
     cl.reset();
 
@@ -120,12 +133,12 @@ void Level1Scene::UnLoad() {
         i[k].reset();
         s[k].reset();
     }
-    
+    itemLocations.clear();
     Scene::UnLoad();
 }
 
 void Level1Scene::Update(const double& dt) {
-    
+
     //If inventory item selected, get key from inventory item
     if (itemClicked)
     {
@@ -134,7 +147,7 @@ void Level1Scene::Update(const double& dt) {
     }
 
     //If inventory item selected, create item
-    if (sf::Keyboard::isKeyPressed(Keyboard::Space)) 
+    if (sf::Keyboard::isKeyPressed(Keyboard::Space))
     {
 
         item = makeEntity();
@@ -161,21 +174,25 @@ void Level1Scene::Update(const double& dt) {
 
         int randomIndex = rand() % empty.size();
 
-        item->setPosition(ls::getTilePosition(empty[randomIndex]) + Vector2f(20.f, 20.f));
+        Vector2f itemLocation = ls::getTilePosition(empty[randomIndex]) + Vector2f(20.f, 20.f);
+
+        item->setPosition(itemLocation);
 
         //Add item to list of items
         i.push_back(j);
         s.push_back(is);
         items.push_back(item);
+        itemLocations.push_back(itemLocation);
     }
 
+
     //Cat's detection range for items
-    int range = 60;
+    int range = 40;
 
     //For each item..
     for (int k = 0; k < items.size(); k++)
     {
-       //Calculate if the cat is nearby each item (HEAVILY INEFFICIENT, NEEDS REWORK)
+        //Calculate if the cat is nearby each item (HEAVILY INEFFICIENT, NEEDS REWORK)
         if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
         {
             //If cat gets close to item, it eats the item and gains stats depending on what it ate
@@ -186,8 +203,58 @@ void Level1Scene::Update(const double& dt) {
             items.erase(items.begin() + k);
             i.erase(i.begin() + k);
             s.erase(s.begin() + k);
+            itemLocations.erase(itemLocations.begin() + k);
         }
     }
+
+    //c->SetHunger(40.0f);
+
+    //Store current time
+    if (!getTime)
+    {
+        storeTime = cl->getTime();
+        getTime = true;
+    }
+
+    //When time passes
+    if (storeTime != cl->getTime())
+    {
+        //Drain cat stats over time
+        c->SetHunger(c->getHunger() - 5);
+
+        c->SetMood(c->getMood() - 1);
+
+       // c->SetCleanliness(c->getCleanliness() - 5);
+
+        //Cats health will worsen if not cleaned or fed
+        if (c->getHunger() < 30 || c->getCleanliness() < 30)
+        {
+            c->SetHealth(c->getHealth() - 5);
+        }
+
+        getTime = false;
+    }
+
+    //If the cat is waiting for a new position to go to
+    if (a->GetPause() == true)
+    {
+        //If the cat is hungry, and an item is on screen, and it is not the current target square
+        if (c->getHunger() < 30.0f && !itemLocations.empty() && a->GetTarget() != previousTarget)
+        {
+            //Walk to a random item on screen
+            int itemIndex = rand() % itemLocations.size();
+            a->PickTarget("HUNGRY", itemLocations[itemIndex]);
+            previousTarget = itemLocations[itemIndex];
+        }
+        //Otherwise, wander to a random square
+        else
+        {
+            a->PickTarget("WANDER");
+        }
+
+        a->SetChosen(true);
+    }
+
     Scene::Update(dt);
 }
 

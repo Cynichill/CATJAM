@@ -8,8 +8,10 @@ protected:
   b2Vec2 _size;
   sf::Vector2f _maxVelocity;
   sf::Vector2f _wanderLocation;
+  sf::Vector2f _target;
   bool _grounded;
   float _groundspeed;
+  std::string state = "WANDER";
 
   bool _tPause = false;
   bool _startTime = false;
@@ -24,7 +26,15 @@ public:
 
   explicit CatAI(Entity* p, const sf::Vector2f& size);
 
-  void PickWanderLocation();
+  void PickTarget(std::string targ, sf::Vector2f& targLocation = sf::Vector2f(0.0f, 0.0f));
+
+  sf::Vector2f GetTarget();
+  bool GetPause();
+
+  void SetChosen(bool chos);
+
+  bool GetChosen();
+
 
   CatAI() = delete;
 };

@@ -7,6 +7,8 @@ using namespace std;
 using namespace sf;
 using namespace Physics;
 
+bool timeCheck = false;
+
 bool CatAI::isGrounded() const {
   auto touch = getTouching();
   const auto& pos = _body->GetPosition();
@@ -39,13 +41,13 @@ void CatAI::update(double dt) {
   }
   
   //If not close to target location, move towards it on the correct axis
-  if ((pos.x < _wanderLocation.x - 5 && pos.x < _wanderLocation.x + 5) || (pos.x > _wanderLocation.x - 5 && pos.x > _wanderLocation.x + 5)) {
+  if ((pos.x < _target.x - 5 && pos.x < _target.x + 5) || (pos.x > _target.x - 5 && pos.x > _target.x + 5)) {
 
     // Moving Either Left or Right
-    if (pos.x < _wanderLocation.x) {
+    if (pos.x < _target.x) {
       if (getVelocity().x < _maxVelocity.x)
         impulse({(float)(dt * _groundspeed), 0});
-    } else if (pos.x > _wanderLocation.x) {
+    } else if (pos.x > _target.x) {
       if (getVelocity().x > -_maxVelocity.x)
         impulse({-(float)(dt * _groundspeed), 0});
     }
@@ -54,13 +56,13 @@ void CatAI::update(double dt) {
     dampen({0.9f, 1.0f});
   }
 
-  if ((pos.y < _wanderLocation.y - 5 && pos.y < _wanderLocation.y + 5) || (pos.y > _wanderLocation.y - 5 && pos.y > _wanderLocation.y + 5)) {
+  if ((pos.y < _target.y - 5 && pos.y < _target.y + 5) || (pos.y > _target.y - 5 && pos.y > _target.y + 5)) {
       // Moving Either Up or Down
-      if (pos.y < _wanderLocation.y) {
+      if (pos.y < _target.y) {
           if (getVelocity().y < _maxVelocity.y)
               impulse({ 0, (float)(dt * _groundspeed) });
       }
-      else if (pos.y > _wanderLocation.y){
+      else if (pos.y > _target.y){
           if (getVelocity().y > -_maxVelocity.y)
               impulse({ 0,  -(float)(dt * _groundspeed)});
       }
@@ -70,40 +72,34 @@ void CatAI::update(double dt) {
       dampen({ 1.0f, 0.9f });
   }
 
-  //Once we arrive at the destination, do nothing for a few seconds
-  if (_startTime)
-  {
-      _start = std::chrono::system_clock::now();
-      _startTime = false;
-      _tPause = true;
-  }
 
-  //Get current system time every frame
-  std::chrono::time_point<std::chrono::system_clock> dur = std::chrono::system_clock::now();
 
-  //Find difference between dur and _start
-  auto seconds = std::chrono::duration_cast<std::chrono::seconds>(dur - _start).count();
-  
-  //If 5 seconds have passed since we got _start
-  if (seconds == 5)
-  {
-      if (!_locationChosen)
-      {
-          //Choose new location to go to
-          PickWanderLocation();
-        
-          _locationChosen = true;
-          _tPause = false;
-      }
-  }
+  int range = 60;
 
   //Once we arrive at the destination, start timer
-  if ((pos.y > _wanderLocation.y - 5 && pos.y < _wanderLocation.y + 5) || (pos.x > _wanderLocation.x - 5 && pos.x < _wanderLocation.x + 5))
+  if ((pos.y > _target.y - range && pos.y < _target.y + range) && (pos.x > _target.x - range && pos.x < _target.x + range))
   {
-      if (!_tPause)
+      if (!_startTime && GetChosen() == true)
       {
+          _start = std::chrono::system_clock::now();
           _startTime = true;
-          _locationChosen = false;
+      }
+
+      if (_startTime) 
+      {
+          //Get current system time every frame
+          std::chrono::time_point<std::chrono::system_clock> dur = std::chrono::system_clock::now();
+
+          //Find difference between dur and _start
+          auto seconds = std::chrono::duration_cast<std::chrono::seconds>(dur - _start).count();
+
+          //If 5 seconds have passed since we got to the location
+          if (seconds == 5)
+          {
+              _tPause = true;
+              SetChosen(false);
+              _startTime = false;
+          }
       }
   }
 
@@ -128,18 +124,40 @@ void CatAI::update(double dt) {
   PhysicsComponent::update(dt);
 }
 
-void CatAI::PickWanderLocation()
+void CatAI::PickTarget(std::string targ, Vector2f& targLocation)
 {
-    //Choose random empty tile on map as target location
-    auto empty = ls::findTiles(ls::EMPTY);
 
-    int randomIndex = rand() % empty.size();
+    if (targ == "WANDER")
+    {
+        //Choose random empty tile on map as target location
+        auto empty = ls::findTiles(ls::EMPTY);
 
-    _wanderLocation =ls::getTilePosition(empty[randomIndex]) + Vector2f(20.f, 20.f);
+        int randomIndex = rand() % empty.size();
 
-    std::cout << randomIndex << std::endl;
+        _target = ls::getTilePosition(empty[randomIndex]) + Vector2f(20.f, 20.f);
+    }
+    else if (targ == "HUNGRY")
+    {
+        _target = targLocation;
+    }
+
+    _tPause = false;
+    cout << targ << endl;
+    cout << targLocation.x << endl;
+    cout << targLocation.y << endl;
 
 }
+
+sf::Vector2f CatAI::GetTarget() { return _target; }
+
+bool CatAI::GetPause() { return _tPause; }
+
+void CatAI::SetChosen(bool chos)
+{
+    _locationChosen = chos;
+}
+
+bool CatAI::GetChosen() { return _locationChosen; }
 
 CatAI::CatAI(Entity* p,
                                                const Vector2f& size)
