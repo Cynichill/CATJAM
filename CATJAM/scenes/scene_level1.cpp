@@ -20,11 +20,13 @@ using namespace sf;
 //Ui Entities
 //
 shared_ptr<TextComponent> stillUiText[4];
+shared_ptr<TextComponent> catStats[13];
 shared_ptr<TextComponent> uiText[4];
 shared_ptr<ShapeComponent> stillUi[4];
-shared_ptr<ShapeComponent> ui[4];
+shared_ptr<ShapeComponent> ui[6];
 shared_ptr<ShapeComponent> slots[6];
 shared_ptr<ShapeComponent> box;
+shared_ptr<Entity> catBox;
 shared_ptr<Entity> toys;
 shared_ptr<Entity> food;
 shared_ptr<Entity> boxEntity;
@@ -210,7 +212,7 @@ void Level1Scene::Load() {
     stillUi[3]->getShape().setOutlineColor(sf::Color::Black);
     stillUi[3]->getShape().setScale(0, 0);
 
-    //Options Box
+    //Tutorial Box
     options = makeEntity();
     ui[0] = options->addComponent<ShapeComponent>();
     options->setPosition(sf::Vector2f(Engine::getWindowSize().x - 175, 88)); //Sets position of the hitboxes based on resolution
@@ -218,7 +220,7 @@ void Level1Scene::Load() {
     ui[0]->getShape().setOutlineColor(sf::Color::Black);
 
 
-    //Tutorial Box
+    //Options Box
     tutorial = makeEntity();
     ui[1] = tutorial->addComponent<ShapeComponent>();
     tutorial->setPosition(sf::Vector2f(Engine::getWindowSize().x - 60, 88)); //Sets position of the hitboxes based on resolution
@@ -240,6 +242,14 @@ void Level1Scene::Load() {
     inventory->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 + 100, 0)); //Sets position of the hitboxes based on resolution
     ui[3]->setShape<sf::ConvexShape>(inventoryShape);
     ui[3]->getShape().setOutlineColor(sf::Color::Black);
+
+
+    //Cat Stats
+    catBox = makeEntity();
+    ui[4] = catBox->addComponent<ShapeComponent>();
+    catBox->setPosition(sf::Vector2f(0, 88)); //Sets position of the hitboxes based on resolution
+    ui[4]->setShape<sf::RectangleShape>(sf::Vector2f(50, 50));
+    ui[4]->getShape().setOutlineColor(sf::Color::White);
 
 
     //Slots for Inventory + Shop
@@ -280,15 +290,15 @@ void Level1Scene::Load() {
 
     //Sets the text for highlightable stuff
     string text[4];
-    text[0] = "T";
-    text[1] = "O";
+    text[0] = "S";
+    text[1] = "S&Q";
     text[2] = "Shop";
     text[3] = "Inventory";
 
     //Sets the text for time and currancy
     string stillText[4];
-    stillText[0] = "Test";
-    stillText[1] = "Test";
+    stillText[0] = cl->getTime();
+    stillText[1] = p->getCurrency();
     stillText[2] = "";
     stillText[3] = "";
 
@@ -328,6 +338,13 @@ void Level1Scene::Load() {
     uiText[2]->getText().setScale(0.5, 0.5); //Scales the text so it fits in box
     uiText[3]->getText().setScale(0.5, 0.5); //Scales the text so it fits in box
 
+    for (int i = 0; i < 13; ++i) {
+
+        catStats[i] = txt->addComponent<TextComponent>();
+        catStats[i]->getText().setColor(sf::Color::Black); //Sets colour of text
+        catStats[i]->getText().setScale(0.5, 0.5);
+    }
+
     std::shared_ptr<Texture> cursor = std::make_shared<sf::Texture>();;
     cursorSprite = makeEntity();
 
@@ -345,17 +362,18 @@ void Level1Scene::Load() {
     keyPressed = false;
     menuDropped = false;
     shopOpen = false;
+    catOpen = false;
     selected = false;
     hideMouse = false;
     controller = false;
-
+    change = false;
     //
     //Loading Ui Stuff
     //
 
     Level1Scene::LoadGame();
     //Simulate long loading times
-    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     cout << " Scene 1 Load Done" << endl;
 
     setLoaded(true);
@@ -386,7 +404,6 @@ void Level1Scene::UnLoad() {
     //
     for (int i = 0; i < 4; ++i)
     {
-        ui[i].reset();
         uiText[i].reset();
         stillUi[i].reset();
         stillUiText[i].reset();
@@ -406,6 +423,7 @@ void Level1Scene::UnLoad() {
 
     for (int i = 0; i < 6; i++)
     {
+        ui[i].reset();
         slots[i].reset();
     }
 
@@ -415,6 +433,11 @@ void Level1Scene::UnLoad() {
     slot4.reset();
     slot5.reset();
     slot6.reset();
+
+    for (int i = 0; i < 13; i++)
+    {
+        catStats[i].reset();
+    }
     //
     //Resets Ui Stuff
     //
@@ -436,8 +459,23 @@ void Level1Scene::Update(const double& dt) {
     {
         KeyboardUpdate();
     }
+    if (catOpen)
+    {
+        GetStats();
+    }
+    if (!catOpen)
+    {
+        HideStats();
+    }
     Controls();
     Highlight();
+    ostringstream streamObj3;
+    streamObj3 << std::fixed;
+    streamObj3 << std::setprecision(2);
+    streamObj3 << p->getCurrency();
+    string money = streamObj3.str();
+    stillUiText[0]->SetText(cl->getTime());
+    stillUiText[1]->SetText("$ " + money);
     //
     //Ui Stuff
     //
@@ -451,9 +489,9 @@ void Level1Scene::Update(const double& dt) {
     }
 
     //If inventory item selected, create item
-    if (sf::Keyboard::isKeyPressed(Keyboard::Space))
+    if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Space))
     {
-
+        keyPressed = true;
         item = makeEntity();
 
         //Create item using key from inventory
@@ -557,6 +595,12 @@ void Level1Scene::Update(const double& dt) {
         }
 
         a->SetChosen(true);
+    }
+
+    //If scene should be changed
+    if (change)
+    {
+        SceneChange();
     }
 
     Scene::Update(dt);
@@ -741,17 +785,23 @@ void Level1Scene::LoadGame() {
 //UI Stuff Below
 void Level1Scene::Highlight()
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 5; i++)
     {
         if (ui[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
         {
             ui[i]->getShape().setFillColor(sf::Color::Blue); //Sets Colour of the hitboxes
-            uiText[i]->getText().setColor(sf::Color::Red); //Sets colour of text
+            if (i < 4)
+            {
+                uiText[i]->getText().setColor(sf::Color::Red); //Sets colour of text
+            }
         }
         else
         {
             ui[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
-            uiText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
+            if (i < 4)
+            {
+                uiText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
+            }
         }
     }
 
@@ -778,50 +828,78 @@ void Level1Scene::Highlight()
         ui[3]->getShape().setFillColor(sf::Color::Blue); //Sets Colour of the hitboxes
         uiText[3]->getText().setColor(sf::Color::Red); //Sets colour of text
     }
+
+    if (catOpen)
+    {
+        ui[4]->getShape().setFillColor(sf::Color::Blue); //Sets Colour of the hitboxes
+    }
 }
 
 void Level1Scene::Controls()
 {
     if (!controller)
     {
-        for (int i = 2; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             if (!keyPressed && sf::Mouse::isButtonPressed(Mouse::Left) && ui[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
             {
                 keyPressed = true;
-
-                if (i == 2)
+                if (i == 0)
+                {
+                    SaveGame();
+                }
+                if (i == 1)
+                {
+                    change = true;
+                }
+                else if (i == 2)
                 {
                     shopOpen = true;
+                    MenuDrop();
                 }
-                if (i == 3)
+                else if (i == 3)
                 {
                     shopOpen = false;
+                    MenuDrop();
                 }
-
-                MenuDrop();
+                else if (i == 4)
+                {
+                    OpenCat();
+                }
             }
         }
     }
 
     if (controller)
     {
-        for (int i = 2; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Enter) && ui[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
             {
                 keyPressed = true;
-
+                if (i == 0)
+                {
+                    SaveGame();
+                }
+                if (i == 1)
+                {
+                    change = true;
+                }
                 if (i == 2)
                 {
                     shopOpen = true;
+                    MenuDrop();
                 }
                 if (i == 3)
                 {
                     shopOpen = false;
+                    MenuDrop();
                 }
-
-                MenuDrop();
+                else if (i == 4)
+                {
+                    shopOpen = true;
+                    OpenCat();
+                }
             }
         }
     }
@@ -832,7 +910,7 @@ void Level1Scene::Controls()
         hideMouse = !hideMouse;
     }
 
-    if (!sf::Mouse::isButtonPressed(Mouse::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::F3) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+    if (!sf::Mouse::isButtonPressed(Mouse::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::F3) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
         keyPressed = false;
     }
@@ -860,6 +938,11 @@ void Level1Scene::MenuDrop()
     }
     else if (!menuDropped)
     {
+        if (catOpen)
+        {
+            catOpen = false;
+            catBox->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x - 300, ui[4]->getShape().getPosition().y));
+        }
         menuDropped = true;
         shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y + 500));
         inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y + 500));
@@ -905,16 +988,29 @@ void Level1Scene::KeyboardUpdate()
 
 void Level1Scene::LoadMenu()
 {
-    boxEntity->setVisible(true);
-
-    for (int i = 0; i < 6; i++)
+    if (menuDropped)
     {
-        slots[i]->getShape().setScale(1, 1);
+        //Background for inventory & shop
+        boxEntity->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 * 0.5, 0)); //Sets position of the hitboxes based on resolution
+        box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
+        boxEntity->setVisible(true);
+
+        for (int i = 0; i < 6; i++)
+        {
+            slots[i]->getShape().setScale(1, 1);
+        }
+        stillUi[2]->getShape().setScale(1, 1);
+        stillUi[3]->getShape().setScale(1, 1);
+        stillUiText[2]->SetText("Food");
+        stillUiText[3]->SetText("Toys");
     }
-    stillUi[2]->getShape().setScale(1, 1);
-    stillUi[3]->getShape().setScale(1, 1);
-    stillUiText[2]->SetText("Food");
-    stillUiText[3]->SetText("Toys");
+
+    if (catOpen)
+    {
+        boxEntity->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y)); //Sets position of the hitboxes based on resolution
+        box->setShape<sf::RectangleShape>(sf::Vector2f(300, 300));
+        boxEntity->setVisible(true);
+    }
 }
 
 void Level1Scene::UnLoadMenu()
@@ -930,4 +1026,121 @@ void Level1Scene::UnLoadMenu()
     stillUi[3]->getShape().setScale(0, 0);
     stillUiText[2]->SetText("");
     stillUiText[3]->SetText("");
+}
+
+void Level1Scene::OpenCat()
+{
+    if (!catOpen)
+    {
+        if (menuDropped)
+        {
+            menuDropped = false;
+            shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y - 500));
+            inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
+            uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
+            uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
+            UnLoadMenu();
+        }
+        catOpen = true;
+        LoadMenu();
+        catBox->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x + 300, ui[4]->getShape().getPosition().y));
+
+        int add = 0;
+        for (int i = 0; i < 13; i++)
+        {
+            if (i == 5)
+            {
+                add = 0;
+            }
+            if (i > 4)
+            {
+                add += 25;
+                catStats[i]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x + 175, ui[4]->getShape().getPosition().y + add));
+            }
+            else
+            {
+                add += 25;
+                catStats[i]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y + add));
+            }
+        }
+    }
+
+    else if (catOpen)
+    {
+        catOpen = false;
+        catBox->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x - 300, ui[4]->getShape().getPosition().y));
+        UnLoadMenu();
+    } 
+}
+
+void Level1Scene::GetStats()
+{
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(2);
+    std::string str;
+
+    catStats[0]->SetText("N:" + c->getName());
+    
+    catStats[1]->SetText("T:" + c->getType());
+    
+    catStats[2]->SetText("S:" + c->getSex());
+    
+    str = std::to_string(c->getAge());
+    catStats[3]->SetText("Age:" + str);
+    
+    catStats[4]->SetText("Fav:" + c->getFaveFood());
+   
+    stream << std::fixed << std::setprecision(0) << c->getHealth();
+    str = stream.str();
+    catStats[5]->SetText("HP:" + str + "/100");
+    stream.str(std::string());
+    
+    stream << std::fixed << std::setprecision(0) << c->getMood();
+    str = stream.str();
+    catStats[6]->SetText("Mood:" + str + "/100");
+    stream.str(std::string());
+    
+    stream << std::fixed << std::setprecision(0) << c->getHunger();
+    str = stream.str();
+    catStats[7]->SetText("Hunger:" + str + "/100");
+    stream.str(std::string());
+    
+    stream << std::fixed << std::setprecision(0) << c->getCleanliness();
+    str = stream.str();
+    catStats[8]->SetText("Clean:" + str + "/100");
+    stream.str(std::string());
+    
+    stream << std::fixed << std::setprecision(0) << c->getAgility();
+    str = stream.str();
+    catStats[9]->SetText("Speed:" + str + "/100");
+    stream.str(std::string());
+    
+    stream << std::fixed << std::setprecision(0) << c->getPower();
+    str = stream.str();
+    catStats[10]->SetText("Power:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getStamina();
+    str = stream.str();
+    catStats[11]->SetText("Stamina:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getBond();
+    str = stream.str();
+    catStats[12]->SetText("Bond:" + str + "/100");
+    stream.str(std::string());
+}
+
+void Level1Scene::HideStats()
+{
+    for (int i = 0; i < 13; i++)
+    {
+        catStats[i]->SetText("");
+    }
+}
+
+void Level1Scene::SceneChange()
+{
+    Engine::GetWindow().setMouseCursorVisible(true);
+    Engine::ChangeScene(&menu);
 }

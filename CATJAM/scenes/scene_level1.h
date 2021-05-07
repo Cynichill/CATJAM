@@ -30,11 +30,21 @@ public:
 
   void UnLoadMenu();
 
+  void SceneChange();
+
+  void OpenCat();
+  
+  void GetStats();
+
+  void HideStats();
+
 private:
 	bool hideMouse;
 	bool keyPressed;
 	bool menuDropped;
 	bool shopOpen;
+	bool catOpen;
+	bool change;
 	bool selected;
 	float cursorSpeed;
 	bool controller;
