@@ -22,6 +22,10 @@ public:
 
   void KeyboardUpdate();
 
+  void LoadMenu();
+
+  void UnLoadMenu();
+
 private:
 	bool hideMouse;
 	bool keyPressed;

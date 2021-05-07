@@ -11,16 +11,27 @@
 using namespace std;
 using namespace sf;
 
-shared_ptr<TextComponent> stillUiText[2];
+shared_ptr<TextComponent> stillUiText[4];
 shared_ptr<TextComponent> uiText[4];
-shared_ptr<ShapeComponent> stillUi[2];
+shared_ptr<ShapeComponent> stillUi[4];
 shared_ptr<ShapeComponent> ui[4];
+shared_ptr<ShapeComponent> slots[6];
+shared_ptr<ShapeComponent> box;
+shared_ptr<Entity> toys;
+shared_ptr<Entity> food;
+shared_ptr<Entity> boxEntity;
 shared_ptr<Entity> date;
 shared_ptr<Entity> currency;
 shared_ptr<Entity> options;
 shared_ptr<Entity> tutorial;
 shared_ptr<Entity> shop;
 shared_ptr<Entity> inventory;
+shared_ptr<Entity> slot1;
+shared_ptr<Entity> slot2;
+shared_ptr<Entity> slot3;
+shared_ptr<Entity> slot4;
+shared_ptr<Entity> slot5;
+shared_ptr<Entity> slot6;
 shared_ptr<SpriteComponent> cursorEntity;
 std::shared_ptr<Entity> cursorSprite;
 
@@ -45,6 +56,17 @@ void Level2Scene::Load()
 	inventoryShape.setPoint(3, sf::Vector2f(-50, 30));
 	inventoryShape.setPoint(4, sf::Vector2f(-60, 0));
 
+	//Background for inventory & shop
+	boxEntity = makeEntity();
+	box = boxEntity->addComponent<ShapeComponent>();
+	boxEntity->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 * 0.5, 0)); //Sets position of the hitboxes based on resolution
+	box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
+	box->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+	box->getShape().setOutlineColor(sf::Color::Black);
+
+	boxEntity->setVisible(false);
+
+
 
 	//Date Box
 	date = makeEntity();
@@ -52,6 +74,7 @@ void Level2Scene::Load()
 	date->setPosition(sf::Vector2f(Engine::getWindowSize().x - 180, 2)); //Sets position of the hitboxes based on resolution
 	stillUi[0]->setShape<sf::RectangleShape>(sf::Vector2f(175, 40));
 	stillUi[0]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+	stillUi[0]->getShape().setOutlineColor(sf::Color::Black);
 
 
 	//Currency Box
@@ -60,13 +83,33 @@ void Level2Scene::Load()
 	currency->setPosition(sf::Vector2f(Engine::getWindowSize().x - 180, 44)); //Sets position of the hitboxes based on resolution
 	stillUi[1]->setShape<sf::RectangleShape>(sf::Vector2f(175, 40));
 	stillUi[1]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+	stillUi[1]->getShape().setOutlineColor(sf::Color::Black);
 
+
+	//Food Box
+	food = makeEntity();
+	stillUi[2] = food->addComponent<ShapeComponent>();
+	food->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, 5)); //Sets position of the hitboxes based on resolution
+	stillUi[2]->setShape<sf::RectangleShape>(sf::Vector2f(150, 50));
+	stillUi[2]->getShape().setFillColor(sf::Color::Black); //Sets Colour of the hitboxes
+	stillUi[2]->getShape().setOutlineColor(sf::Color::Black);
+	stillUi[2]->getShape().setScale(0, 0);
+
+	//Toys Box
+	toys = makeEntity();
+	stillUi[3] = toys->addComponent<ShapeComponent>();
+	toys->setPosition(sf::Vector2f(boxEntity->getPosition().x + 225, 5)); //Sets position of the hitboxes based on resolution
+	stillUi[3]->setShape<sf::RectangleShape>(sf::Vector2f(150, 50));
+	stillUi[3]->getShape().setFillColor(sf::Color::Black); //Sets Colour of the hitboxes
+	stillUi[3]->getShape().setOutlineColor(sf::Color::Black);
+	stillUi[3]->getShape().setScale(0, 0);
 
 	//Options Box
 	options = makeEntity();
 	ui[0] = options->addComponent<ShapeComponent>();
 	options->setPosition(sf::Vector2f(Engine::getWindowSize().x - 175, 88)); //Sets position of the hitboxes based on resolution
 	ui[0]->setShape<sf::RectangleShape>(sf::Vector2f(50, 50));
+	ui[0]->getShape().setOutlineColor(sf::Color::Black);
 
 
 	//Tutorial Box
@@ -74,6 +117,7 @@ void Level2Scene::Load()
 	ui[1] = tutorial->addComponent<ShapeComponent>();
 	tutorial->setPosition(sf::Vector2f(Engine::getWindowSize().x - 60, 88)); //Sets position of the hitboxes based on resolution
 	ui[1]->setShape<sf::RectangleShape>(sf::Vector2f(50, 50));
+	ui[1]->getShape().setOutlineColor(sf::Color::Black);
 
 
 	//Shop
@@ -81,6 +125,7 @@ void Level2Scene::Load()
 	ui[2] = shop->addComponent<ShapeComponent>();
 	shop->setPosition(sf::Vector2f(Engine::getWindowSize().x/2 - 100, 0)); //Sets position of the hitboxes based on resolution
 	ui[2]->setShape<sf::ConvexShape>(shopShape);
+	ui[2]->getShape().setOutlineColor(sf::Color::Black);
 
 
 	//Inventory
@@ -88,9 +133,39 @@ void Level2Scene::Load()
 	ui[3] = inventory->addComponent<ShapeComponent>();
 	inventory->setPosition(sf::Vector2f(Engine::getWindowSize().x/2 + 100, 0)); //Sets position of the hitboxes based on resolution
 	ui[3]->setShape<sf::ConvexShape>(inventoryShape);
+	ui[3]->getShape().setOutlineColor(sf::Color::Black);
 
 
-	
+	//Slots for Inventory + Shop
+	slot1 = makeEntity();
+	slot2 = makeEntity();
+	slot3 = makeEntity();
+	slot4 = makeEntity();
+	slot5 = makeEntity();
+	slot6 = makeEntity();
+
+	slot1->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, boxEntity->getPosition().y + 175)); //Sets position of the hitboxes based on resolution
+	slot2->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, boxEntity->getPosition().y + 275)); //Sets position of the hitboxes based on resolution
+	slot3->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, boxEntity->getPosition().y + 375)); //Sets position of the hitboxes based on resolution
+	slot4->setPosition(sf::Vector2f(boxEntity->getPosition().x + 225, boxEntity->getPosition().y + 175)); //Sets position of the hitboxes based on resolution
+	slot5->setPosition(sf::Vector2f(boxEntity->getPosition().x + 225, boxEntity->getPosition().y + 275)); //Sets position of the hitboxes based on resolution
+	slot6->setPosition(sf::Vector2f(boxEntity->getPosition().x + 225, boxEntity->getPosition().y + 375)); //Sets position of the hitboxes based on resolution
+
+	slots[0] = slot1->addComponent<ShapeComponent>();
+	slots[1] = slot2->addComponent<ShapeComponent>();
+	slots[2] = slot3->addComponent<ShapeComponent>();
+	slots[3] = slot4->addComponent<ShapeComponent>();
+	slots[4] = slot5->addComponent<ShapeComponent>();
+	slots[5] = slot6->addComponent<ShapeComponent>();
+
+	for (int i = 0; i < 6; i++)
+	{
+		slots[i]->setShape<sf::RectangleShape>(sf::Vector2f(150, 50));
+		slots[i]->getShape().setFillColor(sf::Color::Black);
+		slots[i]->getShape().setOutlineColor(sf::Color::Black);
+		slots[i]->getShape().setScale(0, 0);
+	}
+
 	for (int i = 0; i < 2; i++)
 	{
 		ui[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
@@ -105,9 +180,11 @@ void Level2Scene::Load()
 	text[3] = "Inventory";
 
 	//Sets the text for time and currancy
-	string stillText[2];
+	string stillText[4];
 	stillText[0] = "Test";
 	stillText[1] = "Test";
+	stillText[2] = "";
+	stillText[3] = "";
 
 	shared_ptr<Entity> txt = makeEntity();
 
@@ -121,7 +198,7 @@ void Level2Scene::Load()
 		uiText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
 	}
 
-	for (int i = 0; i < 2; ++i) {
+	for (int i = 0; i < 4; ++i) {
 
 		stillUiText[i] = txt->addComponent<TextComponent>(stillText[i]);
 
@@ -130,6 +207,11 @@ void Level2Scene::Load()
 
 	stillUiText[0]->getText().setPosition(date->getPosition()); //Sets position of Date text
 	stillUiText[1]->getText().setPosition(currency->getPosition()); //Sets position Currency text
+
+	stillUiText[2]->getText().setPosition(food->getPosition()); //Sets position of Date text
+	stillUiText[3]->getText().setPosition(toys->getPosition()); //Sets position Currency text
+	stillUiText[2]->getText().setColor(sf::Color::White); //Sets colour of text
+	stillUiText[3]->getText().setColor(sf::Color::White); //Sets colour of text
 
 	uiText[0]->getText().setPosition(options->getPosition()); //Sets position of Options text
 	uiText[1]->getText().setPosition(tutorial->getPosition()); //Sets position of Tutorial text
@@ -172,11 +254,9 @@ void Level2Scene::UnLoad()
 	{
 		ui[i].reset();
 		uiText[i].reset();
+		stillUi[i].reset();
+		stillUiText[i].reset();
 	}
-	stillUi[0].reset();
-	stillUi[1].reset();
-	stillUiText[0].reset();
-	stillUiText[1].reset();
 	date.reset();
 	currency.reset();
 	options.reset();
@@ -185,6 +265,22 @@ void Level2Scene::UnLoad()
 	inventory.reset();
 	cursorEntity.reset();
 	cursorSprite.reset();
+	box.reset();
+	boxEntity.reset();
+	food.reset();
+	toys.reset();
+
+	for (int i = 0; i < 6; i++)
+	{
+		slots[i].reset();
+	}
+
+	slot1.reset();
+	slot2.reset();
+	slot3.reset();
+	slot4.reset();
+	slot5.reset();
+	slot6.reset();
 
   cout << "Scene 2 UnLoad" << endl;
   Scene::UnLoad();
@@ -224,6 +320,18 @@ void Level2Scene::Highlight()
 		{
 			ui[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
 			uiText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
+		}
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (slots[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
+		{
+			slots[i]->getShape().setFillColor(sf::Color::Blue); //Sets Colour of the hitboxes
+		}
+		else
+		{
+			slots[i]->getShape().setFillColor(sf::Color::Black); //Sets Colour of the hitboxes
 		}
 	}
 
@@ -309,12 +417,14 @@ void Level2Scene::MenuDrop()
 			inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
 			uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
 			uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
+
+			UnLoadMenu();
+
 		}
 		else
 		{
 			selected = shopOpen;
 		}
-
 	}
 	else if (!menuDropped)
 	{
@@ -324,6 +434,8 @@ void Level2Scene::MenuDrop()
 		uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
 		uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
 		selected = shopOpen;
+
+		LoadMenu();
 	}
 }
 
@@ -357,4 +469,33 @@ void Level2Scene::KeyboardUpdate()
 	{
 		cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x - cursorSpeed, cursorSprite->getPosition().y));
 	}
+}
+
+void Level2Scene::LoadMenu()
+{
+	boxEntity->setVisible(true);
+
+	for (int i = 0; i < 6; i++)
+	{
+		slots[i]->getShape().setScale(1, 1);
+	}
+	stillUi[2]->getShape().setScale(1, 1);
+	stillUi[3]->getShape().setScale(1, 1);
+	stillUiText[2]->SetText("Food");
+	stillUiText[3]->SetText("Toys");
+}
+
+void Level2Scene::UnLoadMenu()
+{
+
+	boxEntity->setVisible(false);
+
+	for (int i = 0; i < 6; i++)
+	{
+		slots[i]->getShape().setScale(0, 0);
+	}
+	stillUi[2]->getShape().setScale(0, 0);
+	stillUi[3]->getShape().setScale(0, 0);
+	stillUiText[2]->SetText("");
+	stillUiText[3]->SetText("");
 }
