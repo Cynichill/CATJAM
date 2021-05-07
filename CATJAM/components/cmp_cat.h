@@ -67,6 +67,8 @@ public:
 
 	float& getBond();
 
+	void gainStats(std::vector<float> vec);
+
 protected:
 
 	float _stats[8] = { 100.0f, 50.0f, 100.0f, 100.0f, 1.0f, 1.0f, 1.0f, 0.0f };
