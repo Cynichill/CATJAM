@@ -10,6 +10,7 @@
 #include <LevelSystem.h>
 #include <iostream>
 #include <fstream>
+#include <ostream>
 #include <thread>
 #include <ctime>
 
@@ -51,6 +52,10 @@ std::shared_ptr<Entity> cursorSprite;
 static shared_ptr<Entity> cat;
 std::shared_ptr<CatComponent> c;
 std::shared_ptr<CatAI> a;
+std::shared_ptr<SpriteComponent> sp;
+std::shared_ptr<sf::Texture> spritesheet2 = std::make_shared<sf::Texture>();
+
+int bondTracker = 0;
 
 static shared_ptr<Entity> player;
 std::shared_ptr<PlayerComponent> p;
@@ -70,11 +75,10 @@ bool bathFound;
 std::vector<std::shared_ptr<ItemComponent>> i;
 std::vector<std::shared_ptr<SpriteComponent>>s;
 
-
 bool getTime = false;
 std::string storeTime;
 bool itemClicked = true;
-
+bool bondReached = false;
 
 void Level1Scene::Load() {
 
@@ -116,8 +120,12 @@ void Level1Scene::Load() {
             cerr << "Failed to load spritesheet!" << std::endl;
         }
 
+        if (!spritesheet2->loadFromFile("res/sprites/altTabbyCat.png")) {
+            cerr << "Failed to load spritesheet!" << std::endl;
+        }
+
         //Create cat's sprite
-        auto sp = cat->addComponent<SpriteComponent>();
+        sp = cat->addComponent<SpriteComponent>();
         sp->setTexture(spritesheet);
         sp->getSprite().setOrigin(50.f, 50.f);
 
@@ -125,6 +133,7 @@ void Level1Scene::Load() {
         a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f));
         a->PickTarget("WANDER");
         a->SetChosen(true);
+
     }
 
     //Create player
@@ -389,6 +398,7 @@ void Level1Scene::UnLoad() {
     player.reset();
     clockTime.reset();
     c.reset();
+    sp.reset();
     a.reset();
     p.reset();
     cl.reset();
@@ -569,12 +579,38 @@ void Level1Scene::Update(const double& dt) {
 
         c->SetMood(c->getMood() - 1);
 
-        // c->SetCleanliness(c->getCleanliness() - 5);
+        c->SetCleanliness(c->getCleanliness() - 2);
 
          //Cats health will worsen if not cleaned or fed
         if (c->getHunger() < 30 || c->getCleanliness() < 30)
         {
             c->SetHealth(c->getHealth() - 5);
+        }
+
+        if (c->getHealth() < 100)
+        {
+            bondTracker = 0;
+        }
+        else
+        {
+            bondTracker++;
+        }
+
+        if (bondTracker >= 3)
+        {
+            c->SetBond(c->getBond() + 1);
+        }
+
+        if (c->getBond() == 100.0f)
+        {
+            bondReached = true;
+            bondTracker = 0;
+        }
+
+        if (bondReached)
+        {
+            sp->setTexture(spritesheet2);
+            sp->getSprite().setOrigin(50.f, 50.f);
         }
 
         getTime = false;
@@ -716,29 +752,39 @@ void Level1Scene::LoadGame() {
         }
         else
         {
-
-            float hp = 0, mood = 0, hng = 0, cln = 0, agl = 0, pwr = 0, stm = 0, bond = 0;
-            string typ = "", name = "", sex = "", faveFood = "";
-            int age = 0;
-            if (myfile >> hp >> mood >> hng >> cln >> agl >> pwr >> stm >> bond >> typ >> name >> sex >> faveFood >> age)
+            //CHECK FILE NOT EMPTY
+            myfile.seekg(0, ios::end);
+            size_t size = myfile.tellg();
+            if (size == 0)
             {
-                c->SetHealth(hp);
-                c->SetMood(mood);
-                c->SetHunger(hng);
-                c->SetCleanliness(cln);
-                c->SetAgility(agl);
-                c->SetPower(pwr);
-                c->SetStamina(stm);
-                c->SetBond(bond);
-                c->SetType(typ);
-                c->SetName(name);
-                c->SetSex(sex);
-                c->SetFaveFood(faveFood);
-                c->SetAge(age);
+                cout << "File is empty\n";
             }
             else
             {
-                cout << "Failed to load from file" << endl;
+                myfile.seekg(0, ios::beg);
+                float hp = 0, mood = 0, hng = 0, cln = 0, agl = 0, pwr = 0, stm = 0, bond = 0;
+                string typ = "", name = "", sex = "", faveFood = "";
+                int age = 0;
+                if (myfile >> hp >> mood >> hng >> cln >> agl >> pwr >> stm >> bond >> typ >> name >> sex >> faveFood >> age)
+                {
+                    c->SetHealth(hp);
+                    c->SetMood(mood);
+                    c->SetHunger(hng);
+                    c->SetCleanliness(cln);
+                    c->SetAgility(agl);
+                    c->SetPower(pwr);
+                    c->SetStamina(stm);
+                    c->SetBond(bond);
+                    c->SetType(typ);
+                    c->SetName(name);
+                    c->SetSex(sex);
+                    c->SetFaveFood(faveFood);
+                    c->SetAge(age);
+                }
+                else
+                {
+                    cout << "Failed to load from file" << endl;
+                }
             }
         }
     }
@@ -752,19 +798,29 @@ void Level1Scene::LoadGame() {
         }
         else
         {
-
-            string name = "";
-            double dbl = 0.0;
-
-            int age = 0;
-            if (myfile >> name >> dbl)
+            //CHECK FILE NOT EMPTY
+            myfile.seekg(0, ios::end);
+            size_t size = myfile.tellg();
+            if (size == 0)
             {
-                p->SetName(name);
-                p->SetCurrency(dbl);
+                cout << "File is empty\n";
             }
             else
             {
-                cout << "Failed to load from file" << endl;
+                myfile.seekg(0, ios::beg);
+                string name = "";
+                double dbl = 0.0;
+
+                int age = 0;
+                if (myfile >> name >> dbl)
+                {
+                    p->SetName(name);
+                    p->SetCurrency(dbl);
+                }
+                else
+                {
+                    cout << "Failed to load from file" << endl;
+                }
             }
         }
 
@@ -776,15 +832,26 @@ void Level1Scene::LoadGame() {
         }
         else
         {
-            std::map<std::string, int> params;
-            std::string key;
-            int value;
-            while (invfile >> key >> value)
+            invfile.seekg(0, ios::end);
+            size_t size = invfile.tellg();
+            if (size == 0)
             {
-                params[key] = value;
+                cout << "File is empty\n";
             }
+            else
+            {
+                invfile.seekg(0, ios::beg);
+                std::map<std::string, int> params;
+                std::string key;
+                int value;
+                while (invfile >> key >> value)
+                {
+                    params[key] = value;
+                }
 
-            p->SetInventory(params);
+
+                p->SetInventory(params);
+            }
         }
     }
 
@@ -797,23 +864,34 @@ void Level1Scene::LoadGame() {
         }
         else
         {
-
-            std::string time;
-            std::string holdAMPM;
-
-            if (clockfile >> time >> holdAMPM)
+            //CHECK FILE NOT EMPTY
+            clockfile.seekg(0, ios::end);
+            size_t size = clockfile.tellg();
+            if (size == 0)
             {
-                time = time + " " + holdAMPM;
+                cout << "File is empty\n";
             }
             else
             {
-                cout << "Failed to load from file" << endl;
+                //CHECK FILE NOT EMPTY
+                clockfile.seekg(0, ios::beg);
+                std::string time;
+                std::string holdAMPM;
+
+                if (clockfile >> time >> holdAMPM)
+                {
+                    time = time + " " + holdAMPM;
+                }
+                else
+                {
+                    cout << "Failed to load from file" << endl;
+                }
+
+                std::string hr = time.substr(0, 2);
+                std::string min = time.substr(3, 1);
+
+                cl->SetTime(time, std::stoi(hr), std::stoi(min), holdAMPM);
             }
-
-            std::string hr = time.substr(0, 2);
-            std::string min = time.substr(3, 1);
-
-            cl->SetTime(time, std::stoi(hr), std::stoi(min), holdAMPM);
         }
     }
 }

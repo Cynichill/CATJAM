@@ -3,6 +3,7 @@
 #include "../game.h"
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
+#include <fstream>
 #include "../components/cmp_physics.h"
 //#include "Mouse.h"
 
@@ -19,7 +20,6 @@ shared_ptr<Entity> box4;
 void MenuScene::Load() {
   cout << "Menu Load \n";
   {
-
 	  //Box 1
 	  box = makeEntity();
 	  boxes[0] = box->addComponent<ShapeComponent>();
@@ -213,11 +213,13 @@ void MenuScene::MenuSelect()
 		switch (selected)
 		{
 		case 0:
+			DeleteSaveData();
 			UnLoad();
 			Engine::ChangeScene(&level1);
 			break;
 		case 1:
-			std::cout << "Load game button has been pressed" << std::endl;
+			UnLoad();
+			Engine::ChangeScene(&level1);
 			break;
 		case 2:
 			changeMenu = 1;
@@ -521,4 +523,58 @@ void MenuScene::setSize()
 bool MenuScene::controllerType()
 {
 	return controller;
+}
+
+void MenuScene::DeleteSaveData()
+{
+	ofstream myfile("catFile.txt");
+	ofstream myfile2("playerFile.txt");
+	ofstream myfile3("clockFile.txt");
+	ofstream myfile4("invFile.txt");
+
+	if (!myfile)
+	{
+		cout << "Failed to find file" << endl;
+	}
+	{
+		myfile.open("catFile.txt");
+		remove("catFile.txt");
+	}
+	myfile.close();
+
+	if (!myfile2)
+	{
+		cout << "Failed to find file" << endl;
+	}
+	else
+	{
+		myfile2.open("playerFile.txt");
+		remove("playerFile.txt");
+	}
+
+	myfile2.close();
+
+	if (!myfile3)
+	{
+		cout << "Failed to find file" << endl;
+	}
+	else
+	{
+		myfile3.open("clockFile.txt");
+		remove("clockFile.txt");
+	}
+
+	myfile3.close();
+
+	if (!myfile4)
+	{
+		cout << "Failed to find file" << endl;
+	}
+	else
+	{
+		myfile4.open("invFile.txt");
+		remove("invFile.txt");
+	}
+
+	myfile4.close();
 }

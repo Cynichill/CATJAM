@@ -24,7 +24,9 @@ public:
   void MoveDown();
   void MenuSelect();
   void setSize();
+  void DeleteSaveData();
   bool controllerType();
+
 
 private:
 	int selected;
