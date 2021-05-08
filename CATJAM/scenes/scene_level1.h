@@ -38,6 +38,8 @@ public:
 
   void HideStats();
 
+  void MoveBack();
+
 private:
 	bool hideMouse;
 	bool keyPressed;

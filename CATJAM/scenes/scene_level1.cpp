@@ -67,7 +67,7 @@ std::string storeItem;
 bool foodFound;
 bool bathFound;
 
-std::vector<std::shared_ptr<ItemComponent>> i;
+std::vector<std::shared_ptr<ItemComponent>> it;
 std::vector<std::shared_ptr<SpriteComponent>>s;
 
 
@@ -393,10 +393,10 @@ void Level1Scene::UnLoad() {
     p.reset();
     cl.reset();
 
-    for (int k = 0; k < i.size(); k++)
+    for (int k = 0; k < it.size(); k++)
     {
         items[k].reset();
-        i[k].reset();
+        it[k].reset();
         s[k].reset();
     }
     itemLocations.clear();
@@ -450,51 +450,11 @@ void Level1Scene::UnLoad() {
 
 void Level1Scene::Update(const double& dt) {
 
-    //
-    //Ui Stuff
-    //
-    Engine::GetWindow().setMouseCursorVisible(hideMouse);
-    if (!controller)
-    {
-        MouseUpdate();
-    }
-    else if (controller)
-    {
-        KeyboardUpdate();
-    }
-    if (catOpen)
-    {
-        GetStats();
-    }
-    if (!catOpen)
-    {
-        HideStats();
-    }
-    Controls();
-    Highlight();
-    ostringstream streamObj3;
-    streamObj3 << std::fixed;
-    streamObj3 << std::setprecision(2);
-    streamObj3 << p->getCurrency();
-    string money = streamObj3.str();
-    stillUiText[0]->SetText(cl->getTime());
-    stillUiText[1]->SetText("$ " + money);
-    //
-    //Ui Stuff
-    //
 
-    
-    //If inventory item selected, get key from inventory item
+    //If inventory item selected, create item
     if (itemClicked)
     {
         itemClicked = false;
-        storeItem = "CatBath";
-    }
-
-    //If inventory item selected, create item
-    if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Space))
-    {
-        keyPressed = true;
         item = makeEntity();
 
         //Create item using key from inventory
@@ -524,7 +484,7 @@ void Level1Scene::Update(const double& dt) {
         item->setPosition(itemLocation);
 
         //Add item to list of items
-        i.push_back(j);
+        it.push_back(j);
         s.push_back(is);
         items.push_back(item);
         itemLocations.push_back(itemLocation);
@@ -541,13 +501,17 @@ void Level1Scene::Update(const double& dt) {
         //Calculate if the cat is nearby each item (HEAVILY INEFFICIENT, NEEDS REWORK)
         if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
         {
+            std::cout << it[k]->GetKey() << std::endl;
+            std::cout << it[k]->GetSpriteLocation() << std::endl;
+            /*std::cout << i[k]->GetStats() << std::endl;*/
+            std::cout << it[k]->GetType() << std::endl;
             //If cat gets close to item, it eats the item and gains stats depending on what it ate
-            c->gainStats(i[k]->GetStats());
+            /*c->gainStats(i[k]->GetStats());*/
 
             //Delete item and remove from lists
             items[k]->setForDelete();
             items.erase(items.begin() + k);
-            i.erase(i.begin() + k);
+            it.erase(it.begin() + k);
             s.erase(s.begin() + k);
             itemLocations.erase(itemLocations.begin() + k);
             itemType.erase(itemType.begin() + k);
@@ -589,7 +553,7 @@ void Level1Scene::Update(const double& dt) {
             foodFound = false;
             for (int k = 0; k < items.size(); k++)
             {
-                if (i[k]->GetType() == "Food")
+                if (it[k]->GetType() == "Food")
                 {
                     foodFound = true;
                     a->PickTarget("HUNGRY", itemLocations[k]);
@@ -609,7 +573,7 @@ void Level1Scene::Update(const double& dt) {
             bathFound = false;
             for (int k = 0; k < items.size(); k++)
             {
-                if (i[k]->GetKey() == "CatBath")
+                if (it[k]->GetKey() == "CatBath")
                 {
                     bathFound = true;
                     a->PickTarget("DIRTY", itemLocations[k]);
@@ -632,6 +596,39 @@ void Level1Scene::Update(const double& dt) {
       
         a->SetChosen(true);
     }
+
+    //
+    //Ui Stuff
+    //
+    Engine::GetWindow().setMouseCursorVisible(hideMouse);
+    if (!controller)
+    {
+        MouseUpdate();
+    }
+    else if (controller)
+    {
+        KeyboardUpdate();
+    }
+    if (catOpen)
+    {
+        GetStats();
+    }
+    if (!catOpen)
+    {
+        HideStats();
+    }
+    Controls();
+    Highlight();
+    ostringstream streamObj3;
+    streamObj3 << std::fixed;
+    streamObj3 << std::setprecision(2);
+    streamObj3 << p->getCurrency();
+    string money = streamObj3.str();
+    stillUiText[0]->SetText(cl->getTime());
+    stillUiText[1]->SetText("$ " + money);
+    //
+    //Ui Stuff
+    //
 
     //If scene should be changed
     if (change)
@@ -877,6 +874,7 @@ void Level1Scene::Controls()
     {
         for (int i = 0; i < 5; i++)
         {
+            //Normal UI
             if (!keyPressed && sf::Mouse::isButtonPressed(Mouse::Left) && ui[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
             {
                 keyPressed = true;
@@ -904,12 +902,127 @@ void Level1Scene::Controls()
                 }
             }
         }
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (!keyPressed && sf::Mouse::isButtonPressed(Mouse::Left) && slots[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
+            {
+                //Inventory UI + Using
+                keyPressed = true;
+                if (i == 0 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CannedCatFood") > 0)
+                    {
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CannedCatFood";
+                    }
+
+                    if (shopOpen && p->getCurrency() >= 100 && p->getItem("CannedCatFood") < 99)
+                    {
+
+                        p->SetCurrency(p->getCurrency() - 100);
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") + 1);
+                    }
+                }
+                if (i == 1 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Fish") > 0)
+                    {
+                        p->changeItem("Fish", p->getItem("Fish") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Fish";
+                    }
+                    if (shopOpen && p->getCurrency() >= 60 && p->getItem("Fish") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 60);
+                        p->changeItem("Fish", p->getItem("Fish") + 1);
+                    }
+                }
+                if (i == 2 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Catnip") > 0)
+                    {
+                        p->changeItem("Catnip", p->getItem("Catnip") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Catnip";
+                    }
+                    if (shopOpen && p->getCurrency() >= 150 && p->getItem("Catnip") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 150);
+                        p->changeItem("Catnip", p->getItem("Catnip") + 1);
+                    }
+                }
+                if (i == 3 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("YarnBall") > 0)
+                    {
+                        p->changeItem("YarnBall", p->getItem("YarnBall") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "YarnBall";
+                    }
+                    if (shopOpen && p->getCurrency() >= 50 && p->getItem("YarnBall") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 50);
+                        p->changeItem("YarnBall", p->getItem("YarnBall") + 1);
+                    }
+                }
+                if (i == 4 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("FishPlush") > 0)
+                    {
+                        p->changeItem("FishPlush", p->getItem("FishPlush") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "FishPlush";
+                    }
+                    if (shopOpen && p->getCurrency() >= 80 && p->getItem("FishPlush") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 80);
+                        p->changeItem("FishPlush", p->getItem("FishPlush") + 1);
+                    }
+                }
+                if (i == 5 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CatBath") > 0)
+                    {
+                        p->changeItem("CatBath", p->getItem("CatBath") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CatBath";
+                    }
+                    if (shopOpen && p->getCurrency() >= 200 && p->getItem("CatBath") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 200);
+                        p->changeItem("CatBath", p->getItem("CatBath") + 1);
+                    }
+                }
+            }
+        }
     }
+
 
     if (controller)
     {
         for (int i = 0; i < 5; i++)
         {
+            //Normal UI
             if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Enter) && ui[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
             {
                 keyPressed = true;
@@ -921,24 +1034,137 @@ void Level1Scene::Controls()
                 {
                     change = true;
                 }
-                if (i == 2)
+                else if (i == 2)
                 {
                     shopOpen = true;
                     MenuDrop();
                 }
-                if (i == 3)
+                else if (i == 3)
                 {
                     shopOpen = false;
                     MenuDrop();
                 }
                 else if (i == 4)
                 {
-                    shopOpen = true;
                     OpenCat();
                 }
             }
         }
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Enter) && slots[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
+            {
+                //Inventory UI + Using
+                keyPressed = true;
+                if (i == 0 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CannedCatFood") > 0)
+                    {
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CannedCatFood";
+                    }
+
+                    if (shopOpen && p->getCurrency() >= 100 && p->getItem("CannedCatFood") < 99)
+                    {
+
+                        p->getCurrency() -= 100;
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") + 1);
+                    }
+                }
+                if (i == 1 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Fish") > 0)
+                    {
+                        p->changeItem("Fish", p->getItem("Fish") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Fish";
+                    }
+                    if (shopOpen && p->getCurrency() >= 60 && p->getItem("Fish") < 99)
+                    {
+                        p->getCurrency() -= 60;
+                        p->changeItem("Fish", p->getItem("Fish") + 1);
+                    }
+                }
+                if (i == 2 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Catnip") > 0)
+                    {
+                        p->changeItem("Catnip", p->getItem("Catnip") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Catnip";
+                    }
+                    if (shopOpen && p->getCurrency() >= 150 && p->getItem("Catnip") < 99)
+                    {
+                        p->getCurrency() -= 150;
+                        p->changeItem("Catnip", p->getItem("Catnip") + 1);
+                    }
+                }
+                if (i == 3 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("YarnBall") > 0)
+                    {
+                        p->changeItem("YarnBall", p->getItem("YarnBall") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "YarnBall";
+                    }
+                    if (shopOpen && p->getCurrency() >= 50 && p->getItem("YarnBall") < 99)
+                    {
+                        p->getCurrency() -= 50;
+                        p->changeItem("YarnBall", p->getItem("YarnBall") + 1);
+                    }
+                }
+                if (i == 4 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("FishPlush") > 0)
+                    {
+                        p->changeItem("FishPlush", p->getItem("FishPlush") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "FishPlush";
+                    }
+                    if (shopOpen && p->getCurrency() >= 80 && p->getItem("FishPlush") < 99)
+                    {
+                        p->getCurrency() -= 80;
+                        p->changeItem("FishPlush", p->getItem("FishPlush") + 1);
+                    }
+                }
+                if (i == 5 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CatBath") > 0)
+                    {
+                        p->changeItem("CatBath", p->getItem("CatBath") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CatBath";
+                    }
+                    if (shopOpen && p->getCurrency() >= 200 && p->getItem("CatBath") < 99)
+                    {
+                        p->getCurrency() -= 200;
+                        p->changeItem("CatBath", p->getItem("CatBath") + 1);
+                    }
+                }
+            }
+        }
     }
+
 
     if (!keyPressed && sf::Keyboard::isKeyPressed(sf::Keyboard::F3))
     {
@@ -959,13 +1185,8 @@ void Level1Scene::MenuDrop()
         if (selected == shopOpen)
         {
             menuDropped = false;
-            shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y - 500));
-            inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
-            uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
-            uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
-
+            MoveBack();
             UnLoadMenu();
-
         }
         else
         {
@@ -985,40 +1206,7 @@ void Level1Scene::MenuDrop()
         uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
         uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
         selected = shopOpen;
-
         LoadMenu();
-    }
-}
-
-void Level1Scene::MouseUpdate()
-{
-    cursorSprite->setPosition(sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, sf::Mouse::getPosition(Engine::GetWindow()).y));
-}
-
-void Level1Scene::KeyboardUpdate()
-{
-    //Move cursor Down
-    if (cursorSprite->getPosition().y <= Engine::getWindowSize().y - 16.0f && sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-    {
-        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x, cursorSprite->getPosition().y + cursorSpeed));
-    }
-
-    //Move cursor Up
-    if (cursorSprite->getPosition().y >= 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-    {
-        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x, cursorSprite->getPosition().y - cursorSpeed));
-    }
-
-    //Move cursor Right
-    if (cursorSprite->getPosition().x <= Engine::getWindowSize().x - 16.0f && sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-    {
-        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x + cursorSpeed, cursorSprite->getPosition().y));
-    }
-
-    //Move cursor Left
-    if (cursorSprite->getPosition().x >= 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-    {
-        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x - cursorSpeed, cursorSprite->getPosition().y));
     }
 }
 
@@ -1034,7 +1222,19 @@ void Level1Scene::LoadMenu()
         for (int i = 0; i < 6; i++)
         {
             slots[i]->getShape().setScale(1, 1);
+            catStats[i]->getText().setPosition(slots[i]->getShape().getPosition());
+            catStats[i]->getText().setColor(sf::Color::White);
+            if (shopOpen)
+            {
+                catStats[i+6]->getText().setPosition(sf::Vector2f(slots[i]->getShape().getPosition().x, slots[i]->getShape().getPosition().y+20));
+                catStats[i+6]->getText().setColor(sf::Color::White);
+            }
+            else
+            {
+                catStats[i + 6]->SetText("");
+            }
         }
+
         stillUi[2]->getShape().setScale(1, 1);
         stillUi[3]->getShape().setScale(1, 1);
         stillUiText[2]->SetText("Food");
@@ -1057,6 +1257,7 @@ void Level1Scene::UnLoadMenu()
     for (int i = 0; i < 6; i++)
     {
         slots[i]->getShape().setScale(0, 0);
+        catStats[i]->SetText("");
     }
     stillUi[2]->getShape().setScale(0, 0);
     stillUi[3]->getShape().setScale(0, 0);
@@ -1071,10 +1272,7 @@ void Level1Scene::OpenCat()
         if (menuDropped)
         {
             menuDropped = false;
-            shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y - 500));
-            inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
-            uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
-            uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
+            MoveBack();
             UnLoadMenu();
         }
         catOpen = true;
@@ -1098,6 +1296,7 @@ void Level1Scene::OpenCat()
                 add += 25;
                 catStats[i]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y + add));
             }
+            catStats[i]->getText().setColor(sf::Color::Black);
         }
     }
 
@@ -1169,9 +1368,81 @@ void Level1Scene::GetStats()
 
 void Level1Scene::HideStats()
 {
-    for (int i = 0; i < 13; i++)
+    if (menuDropped)
     {
-        catStats[i]->SetText("");
+        if (!shopOpen)
+        {
+            catStats[0]->SetText("CannedFood x" + to_string(p->getItem("CannedCatFood")));
+            catStats[1]->SetText("Fish x" + to_string(p->getItem("Fish")));
+            catStats[2]->SetText("Catnip x" + to_string(p->getItem("Catnip")));
+            catStats[3]->SetText("YarnBall x" + to_string(p->getItem("YarnBall")));
+            catStats[4]->SetText("FishPlush x" + to_string(p->getItem("FishPlush")));
+            catStats[5]->SetText("CatBath x" + to_string(p->getItem("CatBath")));
+
+            for (int i = 6; i < 13; i++)
+            {
+                catStats[i]->SetText("");
+            }
+        }
+
+        else if (shopOpen)
+        {
+            catStats[0]->SetText("CannedFood $100");
+            catStats[1]->SetText("Fish $60");
+            catStats[2]->SetText("Catnip $150");
+            catStats[3]->SetText("YarnBall $50");
+            catStats[4]->SetText("FishPlush $80");
+            catStats[5]->SetText("CatBath $200");
+
+            catStats[6]->SetText("x" + to_string(p->getItem("CannedCatFood")));
+            catStats[7]->SetText("x" + to_string(p->getItem("Fish")));
+            catStats[8]->SetText("x" + to_string(p->getItem("Catnip")));
+            catStats[9]->SetText("x" + to_string(p->getItem("YarnBall")));
+            catStats[10]->SetText("x" + to_string(p->getItem("FishPlush")));
+            catStats[11]->SetText("x" + to_string(p->getItem("CatBath")));
+
+            catStats[12]->SetText("");
+        }
+    }
+
+    else
+    {
+        for (int i = 0; i < 13; i++)
+        {
+            catStats[i]->SetText("");
+        }
+    }
+}
+
+void Level1Scene::MouseUpdate()
+{
+    cursorSprite->setPosition(sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, sf::Mouse::getPosition(Engine::GetWindow()).y));
+}
+
+void Level1Scene::KeyboardUpdate()
+{
+    //Move cursor Down
+    if (cursorSprite->getPosition().y <= Engine::getWindowSize().y - 16.0f && sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+    {
+        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x, cursorSprite->getPosition().y + cursorSpeed));
+    }
+
+    //Move cursor Up
+    if (cursorSprite->getPosition().y >= 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    {
+        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x, cursorSprite->getPosition().y - cursorSpeed));
+    }
+
+    //Move cursor Right
+    if (cursorSprite->getPosition().x <= Engine::getWindowSize().x - 16.0f && sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x + cursorSpeed, cursorSprite->getPosition().y));
+    }
+
+    //Move cursor Left
+    if (cursorSprite->getPosition().x >= 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
+        cursorSprite->setPosition(sf::Vector2f(cursorSprite->getPosition().x - cursorSpeed, cursorSprite->getPosition().y));
     }
 }
 
@@ -1179,4 +1450,12 @@ void Level1Scene::SceneChange()
 {
     Engine::GetWindow().setMouseCursorVisible(true);
     Engine::ChangeScene(&menu);
+}
+
+void Level1Scene::MoveBack()
+{
+    shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y - 500));
+    inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
+    uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
+    uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
 }
