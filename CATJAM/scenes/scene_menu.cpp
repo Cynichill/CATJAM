@@ -67,13 +67,56 @@ void MenuScene::Load() {
 		  t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
 	  }
 
+	  ifstream file("resolutionFile.txt");
+	  if (!file)
+	  {
+		  cout << "Failed to find file" << endl;
+	  }
+	  else
+	  {
+		  //CHECK FILE NOT EMPTY
+		  file.seekg(0, ios::end);
+		  size_t size = file.tellg();
+		  if (size == 0)
+		  {
+			  cout << "File is empty\n";
+		  }
+		  else
+		  {
+			  file.seekg(0, ios::beg);
+			  float w = 0, h = 0;
+			  bool s, v;
+			  if (file >> w >> h)
+			  {
+				  widthStore = w;
+				  heightStore = h;
+
+			  }
+			  else
+			  {
+				  cout << "Failed to load file" << endl;
+			  }
+		  }
+	  }
+
+	  if (widthStore == 800 && heightStore == 600)
+	  {
+		  //Changes the position of boxes with relation to resolution
+		  box->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 0.9));
+		  box2->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 1.9));
+		  box3->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 2.9));
+		  box4->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 3.9));
+
+		  for (int i = 0; i < 4; ++i) {
+
+			  t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.5, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
+		  }
+	  }
+
 	  selected = 0;
 	  changeMenu = 0;
 	  keyPressed = false;
 	  maxDraw = 4;
-	  widthStore = 800;
-	  heightStore = 600;
-	  fullscreen = false;
 	  controller = false;
   }
   setLoaded(true);
@@ -248,7 +291,8 @@ void MenuScene::MenuSelect()
 			MenuChange();
 			break;
 		case 2:
-			std::cout << "Controls button has been pressed" << std::endl;
+			changeMenu = 6;
+			MenuChange();
 			break;
 		case 3:
 			changeMenu = 0;
@@ -363,10 +407,12 @@ void MenuScene::MenuSelect()
 		switch (selected)
 		{
 		case 0:
-			Engine::setVsync(true);
+			vsync = true;
+			setSize();
 			break;
 		case 1:
-			Engine::setVsync(false);
+			vsync = false;
+			setSize();
 			break;
 		case 2:
 			changeMenu = 2;
@@ -375,6 +421,30 @@ void MenuScene::MenuSelect()
 		case 3:
 			break;
 		}
+	}
+
+	/*
+	Mouse
+	Controller
+	Back
+	*/
+	else if (changeMenu == 6)
+	{
+	switch (selected)
+	{
+	case 0:
+		
+		break;
+	case 1:
+		
+		break;
+	case 2:
+		changeMenu = 1;
+		MenuChange();
+		break;
+	case 3:
+		break;
+	}
 	}
 }
 
@@ -488,6 +558,23 @@ void MenuScene::MenuChange()
 
 	}
 
+	if (changeMenu == 6)
+	{
+		maxDraw = 3;
+
+		t[0]->getText().setString("Mouse");
+		t[1]->getText().setString("Keyboard");
+		t[2]->getText().setString("Back");
+
+		t[3]->getText().setString("");
+
+		for (int i = 0; i < maxDraw; i++)
+		{
+			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
+		}
+
+	}
+
 	selected = 0;
 	Highlight();
 }
@@ -517,6 +604,25 @@ void MenuScene::setSize()
 		t[i]->getText().setColor(sf::Color::Black); //Sets colour of text
 		t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
 	}
+
+	if (widthStore == 800 && heightStore == 600)
+	{
+		//Changes the position of boxes with relation to resolution
+		box->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 0.9));
+		box2->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 1.9));
+		box3->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 2.9));
+		box4->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 3.9));
+		for (int i = 0; i < 4; ++i) {
+			t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.5, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
+		}
+	}
+
+	Engine::setVsync(vsync);
+
+	std::ofstream saveFile("resolutionFile.txt", std::ofstream::out);
+	saveFile << widthStore << " ";
+	saveFile << heightStore << " ";
+	saveFile.close();
 
 }
 

@@ -21,7 +21,7 @@ using namespace sf;
 //Ui Entities
 //
 shared_ptr<TextComponent> stillUiText[4];
-shared_ptr<TextComponent> catStats[13];
+shared_ptr<TextComponent> catStats[14];
 shared_ptr<TextComponent> uiText[4];
 shared_ptr<ShapeComponent> stillUi[4];
 shared_ptr<ShapeComponent> ui[6];
@@ -179,7 +179,6 @@ void Level1Scene::Load() {
     //Background for inventory & shop
     boxEntity = makeEntity();
     box = boxEntity->addComponent<ShapeComponent>();
-    boxEntity->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 * 0.5, 0)); //Sets position of the hitboxes based on resolution
     box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
     box->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
     box->getShape().setOutlineColor(sf::Color::Black);
@@ -272,6 +271,10 @@ void Level1Scene::Load() {
     slot5 = makeEntity();
     slot6 = makeEntity();
 
+    boxEntity->setPosition(sf::Vector2f(shop->getPosition().x - 100, 0)); //Sets position of the hitboxes based on resolution
+    food->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, 5)); //Sets position of the hitboxes based on resolution
+    toys->setPosition(sf::Vector2f(boxEntity->getPosition().x + 225, 5)); //Sets position of the hitboxes based on resolution
+
     slot1->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, boxEntity->getPosition().y + 175)); //Sets position of the hitboxes based on resolution
     slot2->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, boxEntity->getPosition().y + 275)); //Sets position of the hitboxes based on resolution
     slot3->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, boxEntity->getPosition().y + 375)); //Sets position of the hitboxes based on resolution
@@ -350,7 +353,7 @@ void Level1Scene::Load() {
     uiText[2]->getText().setScale(0.5, 0.5); //Scales the text so it fits in box
     uiText[3]->getText().setScale(0.5, 0.5); //Scales the text so it fits in box
 
-    for (int i = 0; i < 13; ++i) {
+    for (int i = 0; i < 14; ++i) {
 
         catStats[i] = txt->addComponent<TextComponent>();
         catStats[i]->getText().setColor(sf::Color::Black); //Sets colour of text
@@ -444,7 +447,7 @@ void Level1Scene::UnLoad() {
     slot5.reset();
     slot6.reset();
 
-    for (int i = 0; i < 13; i++)
+    for (int i = 0; i < 14; i++)
     {
         catStats[i].reset();
     }
@@ -1273,6 +1276,7 @@ void Level1Scene::MenuDrop()
         else
         {
             selected = shopOpen;
+            LoadMenu();
         }
     }
     else if (!menuDropped)
@@ -1297,7 +1301,7 @@ void Level1Scene::LoadMenu()
     if (menuDropped)
     {
         //Background for inventory & shop
-        boxEntity->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 * 0.5, 0)); //Sets position of the hitboxes based on resolution
+        boxEntity->setPosition(sf::Vector2f(shop->getPosition().x - 100, 0)); //Sets position of the hitboxes based on resolution
         box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
         boxEntity->setVisible(true);
 
@@ -1380,6 +1384,8 @@ void Level1Scene::OpenCat()
             }
             catStats[i]->getText().setColor(sf::Color::Black);
         }
+        catStats[13]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y + 250));
+        catStats[13]->getText().setColor(sf::Color::Black);
     }
 
     else if (catOpen)
@@ -1446,6 +1452,9 @@ void Level1Scene::GetStats()
     str = stream.str();
     catStats[12]->SetText("Bond:" + str + "/100");
     stream.str(std::string());
+
+    str = p->getName();
+    catStats[13]->SetText("Owner:" + str);
 }
 
 void Level1Scene::HideStats()
@@ -1461,7 +1470,7 @@ void Level1Scene::HideStats()
             catStats[4]->SetText("FishPlush x" + to_string(p->getItem("FishPlush")));
             catStats[5]->SetText("CatBath x" + to_string(p->getItem("CatBath")));
 
-            for (int i = 6; i < 13; i++)
+            for (int i = 6; i < 14; i++)
             {
                 catStats[i]->SetText("");
             }
@@ -1484,12 +1493,13 @@ void Level1Scene::HideStats()
             catStats[11]->SetText("x" + to_string(p->getItem("CatBath")));
 
             catStats[12]->SetText("");
+            catStats[13]->SetText("");
         }
     }
 
     else
     {
-        for (int i = 0; i < 13; i++)
+        for (int i = 0; i < 14; i++)
         {
             catStats[i]->SetText("");
         }
