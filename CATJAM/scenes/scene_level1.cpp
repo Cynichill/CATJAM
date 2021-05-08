@@ -72,7 +72,7 @@ std::string storeItem;
 bool foodFound;
 bool bathFound;
 
-std::vector<std::shared_ptr<ItemComponent>> i;
+std::vector<std::shared_ptr<ItemComponent>> it;
 std::vector<std::shared_ptr<SpriteComponent>>s;
 
 bool getTime = false;
@@ -403,10 +403,10 @@ void Level1Scene::UnLoad() {
     p.reset();
     cl.reset();
 
-    for (int k = 0; k < i.size(); k++)
+    for (int k = 0; k < it.size(); k++)
     {
         items[k].reset();
-        i[k].reset();
+        it[k].reset();
         s[k].reset();
     }
     itemLocations.clear();
@@ -534,7 +534,7 @@ void Level1Scene::Update(const double& dt) {
         item->setPosition(itemLocation);
 
         //Add item to list of items
-        i.push_back(j);
+        it.push_back(j);
         s.push_back(is);
         items.push_back(item);
         itemLocations.push_back(itemLocation);
@@ -552,12 +552,12 @@ void Level1Scene::Update(const double& dt) {
         if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
         {
             //If cat gets close to item, it eats the item and gains stats depending on what it ate
-            c->gainStats(i[k]->GetStats());
+            c->gainStats(it[k]->GetStats());
 
             //Delete item and remove from lists
             items[k]->setForDelete();
             items.erase(items.begin() + k);
-            i.erase(i.begin() + k);
+            it.erase(it.begin() + k);
             s.erase(s.begin() + k);
             itemLocations.erase(itemLocations.begin() + k);
             itemType.erase(itemType.begin() + k);
@@ -625,7 +625,7 @@ void Level1Scene::Update(const double& dt) {
             foodFound = false;
             for (int k = 0; k < items.size(); k++)
             {
-                if (i[k]->GetType() == "Food")
+                if (it[k]->GetType() == "Food")
                 {
                     foodFound = true;
                     a->PickTarget("HUNGRY", itemLocations[k]);
@@ -645,7 +645,7 @@ void Level1Scene::Update(const double& dt) {
             bathFound = false;
             for (int k = 0; k < items.size(); k++)
             {
-                if (i[k]->GetKey() == "CatBath")
+                if (it[k]->GetKey() == "CatBath")
                 {
                     bathFound = true;
                     a->PickTarget("DIRTY", itemLocations[k]);
