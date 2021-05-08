@@ -393,7 +393,6 @@ void Level1Scene::Load() {
 
 void Level1Scene::UnLoad() {
     cout << "Scene 1 Unload" << endl;
-    Level1Scene::SaveGame();
     cat.reset();
     player.reset();
     clockTime.reset();
@@ -403,14 +402,12 @@ void Level1Scene::UnLoad() {
     p.reset();
     cl.reset();
 
-    for (int k = 0; k < it.size(); k++)
-    {
-        items[k].reset();
-        it[k].reset();
-        s[k].reset();
-    }
+    items.clear();
+    it.clear();
+    s.clear();
     itemLocations.clear();
-
+    itemType.clear();
+    item.reset();
 
     //
     //Resets UI Stuff
@@ -539,29 +536,34 @@ void Level1Scene::Update(const double& dt) {
     //Cat's detection range for items
     int range = 40;
 
+    
     //For each item..
-    for (int k = 0; k < items.size(); k++)
+    if (!items.empty() && cat != NULL)
     {
-        //Calculate if the cat is nearby each item (HEAVILY INEFFICIENT, NEEDS REWORK)
-        if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
+        for (int k = 0; k < items.size(); k++)
         {
-
-            if (!(it[k]->GetStats()).empty())
+            //Calculate if the cat is nearby each item 
+            if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
             {
-                //If cat gets close to item, it eats the item and gains stats depending on what it ate
-                c->gainStats(it[k]->GetStats());
-            }
+       
+                if (!(it[k]->GetStats()).empty())
+                {
+                    //If cat gets close to item, it eats the item and gains stats depending on what it ate
+                    c->gainStats(it[k]->GetStats());
+                }
+                
 
-            //Delete item and remove from lists
-            items[k]->setForDelete();
-            items.erase(items.begin() + k);
-            it.erase(it.begin() + k);
-            s.erase(s.begin() + k);
-            itemLocations.erase(itemLocations.begin() + k);
-            itemType.erase(itemType.begin() + k);
+                //Delete item and remove from lists
+                items[k]->setForDelete();
+                items.erase(items.begin() + k);
+                it.erase(it.begin() + k);
+                s.erase(s.begin() + k);
+                itemLocations.erase(itemLocations.begin() + k);
+                itemType.erase(itemType.begin() + k);
+            }
         }
     }
-
+    
     //Store current time
     if (!getTime)
     {
@@ -573,7 +575,7 @@ void Level1Scene::Update(const double& dt) {
     if (storeTime != cl->getTime())
     {
         //Drain cat stats over time
-        c->SetHunger(c->getHunger() - 5);
+        c->SetHunger(c->getHunger() - 2);
 
         c->SetMood(c->getMood() - 1);
 
@@ -670,6 +672,7 @@ void Level1Scene::Update(const double& dt) {
     //If scene should be changed
     if (change)
     {
+        SaveGame();
         SceneChange();
     }
 
