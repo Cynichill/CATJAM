@@ -18,11 +18,10 @@ void PlayerComponent::baseInventory() {
 
     //Create default inventory stats
     _inventory["CannedCatFood"] = 0;
-    _inventory["Tuna"] = 0;
-    _inventory["Salmon"] = 0;
+    _inventory["Fish"] = 0;
     _inventory["Catnip"] = 0;
-    _inventory["DryCatMix"] = 0;
-    _inventory["WetCatMix"] = 0;
+    _inventory["YarnBall"] = 0;
+    _inventory["FishPlush"] = 0;
     _inventory["CatBath"] = 0;
 
 }

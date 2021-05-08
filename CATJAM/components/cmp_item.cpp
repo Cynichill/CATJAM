@@ -23,31 +23,26 @@ void ItemComponent::baseItems() {
     _itemType["CannedCatFood"] = "Food";
 
     _givenStats = { 0.0f, 5.0f, 7.0f, -2.0f, 1.0f, 0.0f, 1.0f, 0.0f };
-    _items["Tuna"] = std::make_pair("res/sprites/Tuna.png", _givenStats);
+    _items["Fish"] = std::make_pair("res/sprites/Fish.png", _givenStats);
 
-    _itemType["Tuna"] = "Food";
+    _itemType["Fish"] = "Food";
 
     _givenStats = { 0.0f, 4.0f, 7.0f, -2.0f, 0.0f, 0.0f, 2.0f, 0.0f };
-    _items["Salmon"] = std::make_pair("res/sprites/Salmon.png", _givenStats);
-
-    _itemType["Salmon"] = "Food";
-
-    _givenStats = { 0.0f, 8.0f, 2.0f, -10.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     _items["Catnip"] = std::make_pair("res/sprites/Catnip.png", _givenStats);
 
     _itemType["Catnip"] = "Food";
 
-    _givenStats = { 0.0f, 3.0f, 8.0f, -4.0f, 0.0f, 1.0f, 1.0f, 0.0f };
-    _items["DryCatMix"] = std::make_pair("res/sprites/DryCatMix.png", _givenStats);
+    _givenStats = { 0.0f, 10.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f };
+    _items["YarnBall"] = std::make_pair("res/sprites/YarnBall.png", _givenStats);
 
-    _itemType["DryCatMix"] = "Food";
+    _itemType["YarnBall"] = "Toy";
 
-    _givenStats = { 0.0f, 3.0f, 9.0f, -8.0f, 1.0f, 1.0f, 0.0f, 0.0f };
-    _items["WetCatMix"] = std::make_pair("res/sprites/WetCatMix.png", _givenStats);
+    _givenStats = { 0.0f, 12.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f };
+    _items["FishPlush"] = std::make_pair("res/sprites/FishPlush.png", _givenStats);
 
-    _itemType["WetCatMix"] = "Food";
+    _itemType["FishPlush"] = "Toy";
 
-    _givenStats = { 0.0f, 1.0f, 1.0f, 100.0f, 1.0f, 1.0f, 1.0f, 0.0f };
+    _givenStats = { 0.0f, 6.0f, 1.0f, 100.0f, 1.0f, 1.0f, 1.0f, 0.0f };
     _items["CatBath"] = std::make_pair("res/sprites/catBath.png", _givenStats);
 
     _itemType["CatBath"] = "Toy";
