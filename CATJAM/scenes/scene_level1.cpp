@@ -498,13 +498,7 @@ void Level1Scene::Update(const double& dt) {
     if (itemClicked)
     {
         itemClicked = false;
-        storeItem = "CatBath";
-    }
 
-    //If inventory item selected, create item
-    if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Space))
-    {
-        keyPressed = true;
         item = makeEntity();
 
         //Create item using key from inventory
@@ -551,8 +545,12 @@ void Level1Scene::Update(const double& dt) {
         //Calculate if the cat is nearby each item (HEAVILY INEFFICIENT, NEEDS REWORK)
         if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
         {
-            //If cat gets close to item, it eats the item and gains stats depending on what it ate
-            c->gainStats(it[k]->GetStats());
+
+            if (!(it[k]->GetStats()).empty())
+            {
+                //If cat gets close to item, it eats the item and gains stats depending on what it ate
+                c->gainStats(it[k]->GetStats());
+            }
 
             //Delete item and remove from lists
             items[k]->setForDelete();
@@ -955,6 +953,7 @@ void Level1Scene::Controls()
     {
         for (int i = 0; i < 5; i++)
         {
+            //Normal UI
             if (!keyPressed && sf::Mouse::isButtonPressed(Mouse::Left) && ui[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
             {
                 keyPressed = true;
@@ -982,12 +981,127 @@ void Level1Scene::Controls()
                 }
             }
         }
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (!keyPressed && sf::Mouse::isButtonPressed(Mouse::Left) && slots[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
+            {
+                //Inventory UI + Using
+                keyPressed = true;
+                if (i == 0 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CannedCatFood") > 0)
+                    {
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CannedCatFood";
+                    }
+
+                    if (shopOpen && p->getCurrency() >= 100 && p->getItem("CannedCatFood") < 99)
+                    {
+
+                        p->SetCurrency(p->getCurrency() - 100);
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") + 1);
+                    }
+                }
+                if (i == 1 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Fish") > 0)
+                    {
+                        p->changeItem("Fish", p->getItem("Fish") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Fish";
+                    }
+                    if (shopOpen && p->getCurrency() >= 60 && p->getItem("Fish") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 60);
+                        p->changeItem("Fish", p->getItem("Fish") + 1);
+                    }
+                }
+                if (i == 2 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Catnip") > 0)
+                    {
+                        p->changeItem("Catnip", p->getItem("Catnip") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Catnip";
+                    }
+                    if (shopOpen && p->getCurrency() >= 150 && p->getItem("Catnip") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 150);
+                        p->changeItem("Catnip", p->getItem("Catnip") + 1);
+                    }
+                }
+                if (i == 3 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("YarnBall") > 0)
+                    {
+                        p->changeItem("YarnBall", p->getItem("YarnBall") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "YarnBall";
+                    }
+                    if (shopOpen && p->getCurrency() >= 50 && p->getItem("YarnBall") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 50);
+                        p->changeItem("YarnBall", p->getItem("YarnBall") + 1);
+                    }
+                }
+                if (i == 4 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("FishPlush") > 0)
+                    {
+                        p->changeItem("FishPlush", p->getItem("FishPlush") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "FishPlush";
+                    }
+                    if (shopOpen && p->getCurrency() >= 80 && p->getItem("FishPlush") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 80);
+                        p->changeItem("FishPlush", p->getItem("FishPlush") + 1);
+                    }
+                }
+                if (i == 5 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CatBath") > 0)
+                    {
+                        p->changeItem("CatBath", p->getItem("CatBath") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CatBath";
+                    }
+                    if (shopOpen && p->getCurrency() >= 200 && p->getItem("CatBath") < 99)
+                    {
+                        p->SetCurrency(p->getCurrency() - 200);
+                        p->changeItem("CatBath", p->getItem("CatBath") + 1);
+                    }
+                }
+            }
+        }
     }
+
 
     if (controller)
     {
         for (int i = 0; i < 5; i++)
         {
+            //Normal UI
             if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Enter) && ui[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
             {
                 keyPressed = true;
@@ -999,24 +1113,137 @@ void Level1Scene::Controls()
                 {
                     change = true;
                 }
-                if (i == 2)
+                else if (i == 2)
                 {
                     shopOpen = true;
                     MenuDrop();
                 }
-                if (i == 3)
+                else if (i == 3)
                 {
                     shopOpen = false;
                     MenuDrop();
                 }
                 else if (i == 4)
                 {
-                    shopOpen = true;
                     OpenCat();
                 }
             }
         }
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Enter) && slots[i]->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
+            {
+                //Inventory UI + Using
+                keyPressed = true;
+                if (i == 0 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CannedCatFood") > 0)
+                    {
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CannedCatFood";
+                    }
+
+                    if (shopOpen && p->getCurrency() >= 100 && p->getItem("CannedCatFood") < 99)
+                    {
+
+                        p->getCurrency() -= 100;
+                        p->changeItem("CannedCatFood", p->getItem("CannedCatFood") + 1);
+                    }
+                }
+                if (i == 1 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Fish") > 0)
+                    {
+                        p->changeItem("Fish", p->getItem("Fish") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Fish";
+                    }
+                    if (shopOpen && p->getCurrency() >= 60 && p->getItem("Fish") < 99)
+                    {
+                        p->getCurrency() -= 60;
+                        p->changeItem("Fish", p->getItem("Fish") + 1);
+                    }
+                }
+                if (i == 2 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("Catnip") > 0)
+                    {
+                        p->changeItem("Catnip", p->getItem("Catnip") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "Catnip";
+                    }
+                    if (shopOpen && p->getCurrency() >= 150 && p->getItem("Catnip") < 99)
+                    {
+                        p->getCurrency() -= 150;
+                        p->changeItem("Catnip", p->getItem("Catnip") + 1);
+                    }
+                }
+                if (i == 3 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("YarnBall") > 0)
+                    {
+                        p->changeItem("YarnBall", p->getItem("YarnBall") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "YarnBall";
+                    }
+                    if (shopOpen && p->getCurrency() >= 50 && p->getItem("YarnBall") < 99)
+                    {
+                        p->getCurrency() -= 50;
+                        p->changeItem("YarnBall", p->getItem("YarnBall") + 1);
+                    }
+                }
+                if (i == 4 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("FishPlush") > 0)
+                    {
+                        p->changeItem("FishPlush", p->getItem("FishPlush") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "FishPlush";
+                    }
+                    if (shopOpen && p->getCurrency() >= 80 && p->getItem("FishPlush") < 99)
+                    {
+                        p->getCurrency() -= 80;
+                        p->changeItem("FishPlush", p->getItem("FishPlush") + 1);
+                    }
+                }
+                if (i == 5 && menuDropped)
+                {
+                    if (!shopOpen && p->getItem("CatBath") > 0)
+                    {
+                        p->changeItem("CatBath", p->getItem("CatBath") - 1);
+                        itemClicked = true;
+                        menuDropped = false;
+                        MoveBack();
+                        UnLoadMenu();
+                        storeItem = "CatBath";
+                    }
+                    if (shopOpen && p->getCurrency() >= 200 && p->getItem("CatBath") < 99)
+                    {
+                        p->getCurrency() -= 200;
+                        p->changeItem("CatBath", p->getItem("CatBath") + 1);
+                    }
+                }
+            }
+        }
     }
+
 
     if (!keyPressed && sf::Keyboard::isKeyPressed(sf::Keyboard::F3))
     {
@@ -1037,13 +1264,8 @@ void Level1Scene::MenuDrop()
         if (selected == shopOpen)
         {
             menuDropped = false;
-            shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y - 500));
-            inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
-            uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
-            uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
-
+            MoveBack();
             UnLoadMenu();
-
         }
         else
         {
@@ -1063,8 +1285,211 @@ void Level1Scene::MenuDrop()
         uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
         uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
         selected = shopOpen;
-
         LoadMenu();
+    }
+}
+
+void Level1Scene::LoadMenu()
+{
+    if (menuDropped)
+    {
+        //Background for inventory & shop
+        boxEntity->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 * 0.5, 0)); //Sets position of the hitboxes based on resolution
+        box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
+        boxEntity->setVisible(true);
+
+        for (int i = 0; i < 6; i++)
+        {
+            slots[i]->getShape().setScale(1, 1);
+            catStats[i]->getText().setPosition(slots[i]->getShape().getPosition());
+            catStats[i]->getText().setColor(sf::Color::White);
+            if (shopOpen)
+            {
+                catStats[i + 6]->getText().setPosition(sf::Vector2f(slots[i]->getShape().getPosition().x, slots[i]->getShape().getPosition().y + 20));
+                catStats[i + 6]->getText().setColor(sf::Color::White);
+            }
+            else
+            {
+                catStats[i + 6]->SetText("");
+            }
+        }
+
+        stillUi[2]->getShape().setScale(1, 1);
+        stillUi[3]->getShape().setScale(1, 1);
+        stillUiText[2]->SetText("Food");
+        stillUiText[3]->SetText("Toys");
+    }
+
+    if (catOpen)
+    {
+        boxEntity->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y)); //Sets position of the hitboxes based on resolution
+        box->setShape<sf::RectangleShape>(sf::Vector2f(300, 300));
+        boxEntity->setVisible(true);
+    }
+}
+
+void Level1Scene::UnLoadMenu()
+{
+
+    boxEntity->setVisible(false);
+
+    for (int i = 0; i < 6; i++)
+    {
+        slots[i]->getShape().setScale(0, 0);
+        catStats[i]->SetText("");
+    }
+    stillUi[2]->getShape().setScale(0, 0);
+    stillUi[3]->getShape().setScale(0, 0);
+    stillUiText[2]->SetText("");
+    stillUiText[3]->SetText("");
+}
+
+void Level1Scene::OpenCat()
+{
+    if (!catOpen)
+    {
+        if (menuDropped)
+        {
+            menuDropped = false;
+            MoveBack();
+            UnLoadMenu();
+        }
+        catOpen = true;
+        LoadMenu();
+        catBox->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x + 300, ui[4]->getShape().getPosition().y));
+
+        int add = 0;
+        for (int i = 0; i < 13; i++)
+        {
+            if (i == 5)
+            {
+                add = 0;
+            }
+            if (i > 4)
+            {
+                add += 25;
+                catStats[i]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x + 175, ui[4]->getShape().getPosition().y + add));
+            }
+            else
+            {
+                add += 25;
+                catStats[i]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y + add));
+            }
+            catStats[i]->getText().setColor(sf::Color::Black);
+        }
+    }
+
+    else if (catOpen)
+    {
+        catOpen = false;
+        catBox->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x - 300, ui[4]->getShape().getPosition().y));
+        UnLoadMenu();
+    }
+}
+
+void Level1Scene::GetStats()
+{
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(2);
+    std::string str;
+
+    catStats[0]->SetText("N:" + c->getName());
+
+    catStats[1]->SetText("T:" + c->getType());
+
+    catStats[2]->SetText("S:" + c->getSex());
+
+    str = std::to_string(c->getAge());
+    catStats[3]->SetText("Age:" + str);
+
+    catStats[4]->SetText("Fav:" + c->getFaveFood());
+
+    stream << std::fixed << std::setprecision(0) << c->getHealth();
+    str = stream.str();
+    catStats[5]->SetText("HP:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getMood();
+    str = stream.str();
+    catStats[6]->SetText("Mood:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getHunger();
+    str = stream.str();
+    catStats[7]->SetText("Hunger:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getCleanliness();
+    str = stream.str();
+    catStats[8]->SetText("Clean:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getAgility();
+    str = stream.str();
+    catStats[9]->SetText("Speed:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getPower();
+    str = stream.str();
+    catStats[10]->SetText("Power:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getStamina();
+    str = stream.str();
+    catStats[11]->SetText("Stamina:" + str + "/100");
+    stream.str(std::string());
+
+    stream << std::fixed << std::setprecision(0) << c->getBond();
+    str = stream.str();
+    catStats[12]->SetText("Bond:" + str + "/100");
+    stream.str(std::string());
+}
+
+void Level1Scene::HideStats()
+{
+    if (menuDropped)
+    {
+        if (!shopOpen)
+        {
+            catStats[0]->SetText("CannedFood x" + to_string(p->getItem("CannedCatFood")));
+            catStats[1]->SetText("Fish x" + to_string(p->getItem("Fish")));
+            catStats[2]->SetText("Catnip x" + to_string(p->getItem("Catnip")));
+            catStats[3]->SetText("YarnBall x" + to_string(p->getItem("YarnBall")));
+            catStats[4]->SetText("FishPlush x" + to_string(p->getItem("FishPlush")));
+            catStats[5]->SetText("CatBath x" + to_string(p->getItem("CatBath")));
+
+            for (int i = 6; i < 13; i++)
+            {
+                catStats[i]->SetText("");
+            }
+        }
+
+        else if (shopOpen)
+        {
+            catStats[0]->SetText("CannedFood $100");
+            catStats[1]->SetText("Fish $60");
+            catStats[2]->SetText("Catnip $150");
+            catStats[3]->SetText("YarnBall $50");
+            catStats[4]->SetText("FishPlush $80");
+            catStats[5]->SetText("CatBath $200");
+
+            catStats[6]->SetText("x" + to_string(p->getItem("CannedCatFood")));
+            catStats[7]->SetText("x" + to_string(p->getItem("Fish")));
+            catStats[8]->SetText("x" + to_string(p->getItem("Catnip")));
+            catStats[9]->SetText("x" + to_string(p->getItem("YarnBall")));
+            catStats[10]->SetText("x" + to_string(p->getItem("FishPlush")));
+            catStats[11]->SetText("x" + to_string(p->getItem("CatBath")));
+
+            catStats[12]->SetText("");
+        }
+    }
+
+    else
+    {
+        for (int i = 0; i < 13; i++)
+        {
+            catStats[i]->SetText("");
+        }
     }
 }
 
@@ -1100,161 +1525,16 @@ void Level1Scene::KeyboardUpdate()
     }
 }
 
-void Level1Scene::LoadMenu()
-{
-    if (menuDropped)
-    {
-        //Background for inventory & shop
-        boxEntity->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 * 0.5, 0)); //Sets position of the hitboxes based on resolution
-        box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
-        boxEntity->setVisible(true);
-
-        for (int i = 0; i < 6; i++)
-        {
-            slots[i]->getShape().setScale(1, 1);
-        }
-        stillUi[2]->getShape().setScale(1, 1);
-        stillUi[3]->getShape().setScale(1, 1);
-        stillUiText[2]->SetText("Food");
-        stillUiText[3]->SetText("Toys");
-    }
-
-    if (catOpen)
-    {
-        boxEntity->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y)); //Sets position of the hitboxes based on resolution
-        box->setShape<sf::RectangleShape>(sf::Vector2f(300, 300));
-        boxEntity->setVisible(true);
-    }
-}
-
-void Level1Scene::UnLoadMenu()
-{
-
-    boxEntity->setVisible(false);
-
-    for (int i = 0; i < 6; i++)
-    {
-        slots[i]->getShape().setScale(0, 0);
-    }
-    stillUi[2]->getShape().setScale(0, 0);
-    stillUi[3]->getShape().setScale(0, 0);
-    stillUiText[2]->SetText("");
-    stillUiText[3]->SetText("");
-}
-
-void Level1Scene::OpenCat()
-{
-    if (!catOpen)
-    {
-        if (menuDropped)
-        {
-            menuDropped = false;
-            shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y - 500));
-            inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
-            uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
-            uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
-            UnLoadMenu();
-        }
-        catOpen = true;
-        LoadMenu();
-        catBox->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x + 300, ui[4]->getShape().getPosition().y));
-
-        int add = 0;
-        for (int i = 0; i < 13; i++)
-        {
-            if (i == 5)
-            {
-                add = 0;
-            }
-            if (i > 4)
-            {
-                add += 25;
-                catStats[i]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x + 175, ui[4]->getShape().getPosition().y + add));
-            }
-            else
-            {
-                add += 25;
-                catStats[i]->getText().setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y + add));
-            }
-        }
-    }
-
-    else if (catOpen)
-    {
-        catOpen = false;
-        catBox->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x - 300, ui[4]->getShape().getPosition().y));
-        UnLoadMenu();
-    } 
-}
-
-void Level1Scene::GetStats()
-{
-    std::stringstream stream;
-    stream << std::fixed << std::setprecision(2);
-    std::string str;
-
-    catStats[0]->SetText("N:" + c->getName());
-    
-    catStats[1]->SetText("T:" + c->getType());
-    
-    catStats[2]->SetText("S:" + c->getSex());
-    
-    str = std::to_string(c->getAge());
-    catStats[3]->SetText("Age:" + str);
-    
-    catStats[4]->SetText("Fav:" + c->getFaveFood());
-   
-    stream << std::fixed << std::setprecision(0) << c->getHealth();
-    str = stream.str();
-    catStats[5]->SetText("HP:" + str + "/100");
-    stream.str(std::string());
-    
-    stream << std::fixed << std::setprecision(0) << c->getMood();
-    str = stream.str();
-    catStats[6]->SetText("Mood:" + str + "/100");
-    stream.str(std::string());
-    
-    stream << std::fixed << std::setprecision(0) << c->getHunger();
-    str = stream.str();
-    catStats[7]->SetText("Hunger:" + str + "/100");
-    stream.str(std::string());
-    
-    stream << std::fixed << std::setprecision(0) << c->getCleanliness();
-    str = stream.str();
-    catStats[8]->SetText("Clean:" + str + "/100");
-    stream.str(std::string());
-    
-    stream << std::fixed << std::setprecision(0) << c->getAgility();
-    str = stream.str();
-    catStats[9]->SetText("Speed:" + str + "/100");
-    stream.str(std::string());
-    
-    stream << std::fixed << std::setprecision(0) << c->getPower();
-    str = stream.str();
-    catStats[10]->SetText("Power:" + str + "/100");
-    stream.str(std::string());
-
-    stream << std::fixed << std::setprecision(0) << c->getStamina();
-    str = stream.str();
-    catStats[11]->SetText("Stamina:" + str + "/100");
-    stream.str(std::string());
-
-    stream << std::fixed << std::setprecision(0) << c->getBond();
-    str = stream.str();
-    catStats[12]->SetText("Bond:" + str + "/100");
-    stream.str(std::string());
-}
-
-void Level1Scene::HideStats()
-{
-    for (int i = 0; i < 13; i++)
-    {
-        catStats[i]->SetText("");
-    }
-}
-
 void Level1Scene::SceneChange()
 {
     Engine::GetWindow().setMouseCursorVisible(true);
     Engine::ChangeScene(&menu);
+}
+
+void Level1Scene::MoveBack()
+{
+    shop->setPosition(sf::Vector2f(ui[2]->getShape().getPosition().x, ui[2]->getShape().getPosition().y - 500));
+    inventory->setPosition(sf::Vector2f(ui[3]->getShape().getPosition().x, ui[3]->getShape().getPosition().y - 500));
+    uiText[2]->getText().setPosition(sf::Vector2f(shop->getPosition().x - 20, shop->getPosition().y)); //Sets position of the text based on resolution
+    uiText[3]->getText().setPosition(sf::Vector2f(inventory->getPosition().x - 40, inventory->getPosition().y)); //Sets position of the text based on resolution
 }
