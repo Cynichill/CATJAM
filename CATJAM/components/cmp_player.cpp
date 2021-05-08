@@ -23,7 +23,7 @@ void PlayerComponent::baseInventory() {
     _inventory["Catnip"] = 0;
     _inventory["DryCatMix"] = 0;
     _inventory["WetCatMix"] = 0;
-    _inventory["MysteryMeat"] = 0;
+    _inventory["CatBath"] = 0;
 
 }
 void PlayerComponent::SetName(const std::string& str) {

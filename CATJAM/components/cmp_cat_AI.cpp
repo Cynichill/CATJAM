@@ -136,10 +136,11 @@ void CatAI::PickTarget(std::string targ, Vector2f& targLocation)
 
         _target = ls::getTilePosition(empty[randomIndex]) + Vector2f(20.f, 20.f);
     }
-    else if (targ == "HUNGRY")
+    else if (targ == "HUNGRY" || targ == "DIRTY")
     {
         _target = targLocation;
     }
+    
 
     _tPause = false;
     cout << targ << endl;

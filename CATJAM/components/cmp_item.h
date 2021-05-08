@@ -15,9 +15,12 @@ public:
 
 	void ItemComponent::baseItems();
 
-	std::string ItemComponent::GetSpriteLocation(std::string key);
+	std::string ItemComponent::GetSpriteLocation();
 
-	std::vector<float> ItemComponent::GetStats(std::string key);
+	std::vector<float> ItemComponent::GetStats();
+
+	std::string ItemComponent::GetType();
+
 	
 	std::string ItemComponent::GetKey();
 
@@ -28,5 +31,6 @@ protected:
 	std::string _spriteLocation;
 	std::vector<float> _givenStats = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 	std::map<std::string, std::pair<std::string, std::vector<float>>> _items;
+	std::map<std::string, std::string> _itemType;
 	std::string _key;
 };

@@ -61,8 +61,11 @@ std::shared_ptr<ClockComponent> cl;
 std::vector<shared_ptr<Entity>> items;
 static shared_ptr<Entity> item;
 std::vector<Vector2f> itemLocations;
+std::vector<std::string> itemType;
 sf::Vector2f previousTarget;
 std::string storeItem;
+bool foodFound;
+bool bathFound;
 
 std::vector<std::shared_ptr<ItemComponent>> i;
 std::vector<std::shared_ptr<SpriteComponent>>s;
@@ -485,7 +488,7 @@ void Level1Scene::Update(const double& dt) {
     if (itemClicked)
     {
         itemClicked = false;
-        storeItem = "CannedCatFood";
+        storeItem = "CatBath";
     }
 
     //If inventory item selected, create item
@@ -504,7 +507,7 @@ void Level1Scene::Update(const double& dt) {
 
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
 
-        if (!spritesheet->loadFromFile(j->GetSpriteLocation(storeItem))) {
+        if (!spritesheet->loadFromFile(j->GetSpriteLocation())) {
             cerr << "Failed to load spritesheet!" << std::endl;
         }
 
@@ -525,6 +528,7 @@ void Level1Scene::Update(const double& dt) {
         s.push_back(is);
         items.push_back(item);
         itemLocations.push_back(itemLocation);
+        itemType.push_back(storeItem);
     }
 
 
@@ -538,7 +542,7 @@ void Level1Scene::Update(const double& dt) {
         if ((cat->getPosition().y > items[k]->getPosition().y - range && cat->getPosition().y < items[k]->getPosition().y + range) && (cat->getPosition().x > items[k]->getPosition().x - range && cat->getPosition().x < items[k]->getPosition().x + range))
         {
             //If cat gets close to item, it eats the item and gains stats depending on what it ate
-            c->gainStats(i[k]->GetStats(i[k]->GetKey()));
+            c->gainStats(i[k]->GetStats());
 
             //Delete item and remove from lists
             items[k]->setForDelete();
@@ -546,10 +550,9 @@ void Level1Scene::Update(const double& dt) {
             i.erase(i.begin() + k);
             s.erase(s.begin() + k);
             itemLocations.erase(itemLocations.begin() + k);
+            itemType.erase(itemType.begin() + k);
         }
     }
-
-    //c->SetHunger(40.0f);
 
     //Store current time
     if (!getTime)
@@ -583,17 +586,50 @@ void Level1Scene::Update(const double& dt) {
         //If the cat is hungry, and an item is on screen, and it is not the current target square
         if (c->getHunger() < 30.0f && !itemLocations.empty() && a->GetTarget() != previousTarget)
         {
-            //Walk to a random item on screen
-            int itemIndex = rand() % itemLocations.size();
-            a->PickTarget("HUNGRY", itemLocations[itemIndex]);
-            previousTarget = itemLocations[itemIndex];
+            foodFound = false;
+            for (int k = 0; k < items.size(); k++)
+            {
+                if (i[k]->GetType() == "Food")
+                {
+                    foodFound = true;
+                    a->PickTarget("HUNGRY", itemLocations[k]);
+                    previousTarget = itemLocations[k];
+                    break;
+                }
+            }
+
+            //Otherwise, wander to a random square
+            if (!foodFound)
+            {
+                a->PickTarget("WANDER");
+            }
         }
-        //Otherwise, wander to a random square
-        else
+        else if (c->getCleanliness() < 20.0f && !itemLocations.empty() && a->GetTarget() != previousTarget)
         {
+            bathFound = false;
+            for (int k = 0; k < items.size(); k++)
+            {
+                if (i[k]->GetKey() == "CatBath")
+                {
+                    bathFound = true;
+                    a->PickTarget("DIRTY", itemLocations[k]);
+                    previousTarget = itemLocations[k];
+                    break;
+                }
+            }
+
+            //Otherwise, wander to a random square
+            if (!bathFound)
+            {
+                a->PickTarget("WANDER");
+            }
+        }
+        else 
+        {
+            //Otherwise, wander to a random square
             a->PickTarget("WANDER");
         }
-
+      
         a->SetChosen(true);
     }
 
