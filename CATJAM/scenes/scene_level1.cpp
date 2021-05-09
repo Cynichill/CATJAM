@@ -56,7 +56,9 @@ std::shared_ptr<Entity> cursorSprite;
 //Sound Effects
 //
 
-sf::Sound paying;
+sf::Sound sound[2];
+sf::Music mainMusic;
+sf::SoundBuffer buffer[2];
 
 //
 //Sound Effects
@@ -143,11 +145,11 @@ void Level1Scene::Load() {
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
 
         if (!spritesheet->loadFromFile("res/sprites/tabbyCat.png")) {
-            cerr << "Failed to load spritesheet!" << std::endl;
+            //error
         }
 
         if (!spritesheet2->loadFromFile("res/sprites/altTabbyCat.png")) {
-            cerr << "Failed to load spritesheet!" << std::endl;
+            //error
         }
 
         //Create cat's sprite
@@ -419,7 +421,6 @@ void Level1Scene::Load() {
 
     if (!cursor->loadFromFile("res/sprites/mouse.png"))
     {
-        std::cout << "Failed to Load Sprite" << std::endl;
         //Error
     }
     cursorEntity = cursorSprite->addComponent<SpriteComponent>();
@@ -445,16 +446,29 @@ void Level1Scene::Load() {
     //
     //Sound Stuff
     //
-    sf::SoundBuffer buffer;
 
-    if (!buffer.loadFromFile("res/sounds/Dropmetalthing.ogg"));
+    if (!buffer[0].loadFromFile("res/sounds/Dropmetalthing.ogg"));
     {
-        std::cout << "Failed to Load Sound" << std::endl;
         //Error
     }
 
-    paying.setBuffer(buffer);
+    if (!buffer[1].loadFromFile("res/sounds/meow.ogg"));
+    {
+        //Error
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        sound[i].setBuffer(buffer[i]);
+    }
     
+    if (!mainMusic.openFromFile("res/music/mainscene.wav"));
+    {
+        //Error
+    }
+    mainMusic.setLoop(true);
+    mainMusic.play();
+    mainMusic.setVolume(50);
 
     //
     //Sound Stuff
@@ -536,6 +550,8 @@ void Level1Scene::UnLoad() {
     //
     //Resets Sound Stuff
     //
+
+    mainMusic.stop();
 
     //
     //Resets Sound Stuff
@@ -670,6 +686,7 @@ void Level1Scene::Update(const double& dt) {
                 s.erase(s.begin() + k);
                 itemLocations.erase(itemLocations.begin() + k);
                 itemType.erase(itemType.begin() + k);
+                sound[1].play();
             }
         }
     }
@@ -1145,7 +1162,7 @@ void Level1Scene::Controls()
                         //Decrease the player currency and increase the item in inventory
                         p->SetCurrency(p->getCurrency() - 100);
                         p->changeItem("CannedCatFood", p->getItem("CannedCatFood") + 1);
-                        paying.play();
+                        sound[0].play();
                     }
                 }
                 if (i == 1 && menuDropped)
@@ -1165,6 +1182,7 @@ void Level1Scene::Controls()
                     {
                         p->SetCurrency(p->getCurrency() - 60);
                         p->changeItem("Fish", p->getItem("Fish") + 1);
+                        sound[0].play();
                     }
                 }
                 if (i == 2 && menuDropped)
@@ -1184,6 +1202,7 @@ void Level1Scene::Controls()
                     {
                         p->SetCurrency(p->getCurrency() - 150);
                         p->changeItem("Catnip", p->getItem("Catnip") + 1);
+                        sound[0].play();
                     }
                 }
                 if (i == 3 && menuDropped)
@@ -1203,6 +1222,7 @@ void Level1Scene::Controls()
                     {
                         p->SetCurrency(p->getCurrency() - 50);
                         p->changeItem("YarnBall", p->getItem("YarnBall") + 1);
+                        sound[0].play();
                     }
                 }
                 if (i == 4 && menuDropped)
@@ -1222,6 +1242,7 @@ void Level1Scene::Controls()
                     {
                         p->SetCurrency(p->getCurrency() - 80);
                         p->changeItem("FishPlush", p->getItem("FishPlush") + 1);
+                        sound[0].play();
                     }
                 }
                 if (i == 5 && menuDropped)
@@ -1241,6 +1262,7 @@ void Level1Scene::Controls()
                     {
                         p->SetCurrency(p->getCurrency() - 200);
                         p->changeItem("CatBath", p->getItem("CatBath") + 1);
+                        sound[0].play();
                     }
                 }
             }

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include "../components/cmp_physics.h"
-//#include "Mouse.h"
+#include "SFML/Audio.hpp"
 
 using namespace std;
 using namespace sf;
@@ -17,6 +17,7 @@ shared_ptr<Entity> box;
 shared_ptr<Entity> box2;
 shared_ptr<Entity> box3;
 shared_ptr<Entity> box4;
+sf::Music music;
 
 void MenuScene::Load() {
   cout << "Menu Load \n";
@@ -126,6 +127,16 @@ void MenuScene::Load() {
 	  keyPressed = true;
 	  maxDraw = 4;
 	  controller = false;
+
+	  //Music
+	  if (!music.openFromFile("res/music/menu.wav"))
+	  {
+		  cout << "Failed to load music" << endl;
+		  //error
+	  }
+	  music.setLoop(true);
+	  music.play();
+	  music.setVolume(25);
   }
   setLoaded(true);
 }
@@ -144,6 +155,7 @@ void MenuScene::UnLoad()
 	box3.reset();
 	box4.reset();
 	title.reset();
+	music.stop();
 	Scene::UnLoad();
 }
 
