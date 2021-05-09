@@ -36,5 +36,6 @@ private:
 	float widthStore;
 	float heightStore;
 	bool fullscreen;
+	bool vsync;
 	bool controller;
 };

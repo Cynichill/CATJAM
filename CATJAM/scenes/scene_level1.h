@@ -50,5 +50,6 @@ private:
 	bool selected;
 	float cursorSpeed;
 	bool controller;
+	int sceneChange;
 
 };
