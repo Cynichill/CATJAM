@@ -22,7 +22,7 @@ protected:
 public:
   void update(double dt) override;
 
-  explicit CatAI(Entity* p, const sf::Vector2f& size, bool minigameVer, sf::Vector2f maxVelocity);
+  explicit CatAI(Entity* p, const sf::Vector2f& size, bool minigameVer, sf::Vector2f maxVelocity, std::string file);
 
   void PickTarget(std::string targ, sf::Vector2f& targLocation = sf::Vector2f(0.0f, 0.0f));
 

@@ -131,7 +131,7 @@ void Level1Scene::Load() {
         sp->getSprite().setOrigin(50.f, 50.f);
 
         //Add cat AI (pathfinding and state machine)
-        a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), false, Vector2f(50.f, 50.f));
+        a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), false, Vector2f(50.f, 50.f), "res/levels/gameScene.txt");
         a->PickTarget("WANDER");
         a->SetChosen(true);
 
@@ -669,6 +669,7 @@ void Level1Scene::Update(const double& dt) {
       
         a->SetChosen(true);
     }
+
 
     //If scene should be changed
     if (change)

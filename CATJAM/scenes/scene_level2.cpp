@@ -51,16 +51,14 @@ std::vector<Vector2f> enemyLocations;
 
 bool reroll = false;
 
-std::vector<sf::Vector2ul> enemies;
-
-void Level2Scene::Load() 
+void Level2Scene::Load()
 {
-	
+
     //Creates a new seed for randomization
     srand(time(NULL));
 
     //Loads in the 'level', used as the boundary
-    std::cout << " Scene 1 Load" << std::endl;
+    std::cout << " Scene 2 Load" << std::endl;
     ls::loadLevelFile("res/levels/minigame.txt", 40.0f);
 
     auto h = Engine::getWindowSize().x - (ls::getWidth() * 40.f);
@@ -77,8 +75,6 @@ void Level2Scene::Load()
             e->setPosition(pos);
             e->addComponent<PhysicsComponent>(false, Vector2f(40.f, 40.f));
         }
-
-        enemies = ls::findTiles(ls::ENEMY);
     }
 
     // Create Cat
@@ -103,7 +99,7 @@ void Level2Scene::Load()
         sp2->getSprite().setOrigin(50.f, 50.f);
 
         //Add cat AI (pathfinding and state machine)
-        a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 200.f));
+        a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 200.f), "res/levels/minigame.txt");
 
     }
 
@@ -132,11 +128,11 @@ void Level2Scene::Load()
     }
 
 
-	cout << " Scene 2 Load Done" << endl;
-	setLoaded(true);
+    cout << " Scene 2 Load Done" << endl;
+    setLoaded(true);
 }
 
-void Level2Scene::UnLoad() 
+void Level2Scene::UnLoad()
 {
     cat2.reset();
     c2.reset();
@@ -154,8 +150,8 @@ void Level2Scene::UnLoad()
     enemyLocations.clear();
     enemy.reset();
 
-  cout << "Scene 2 UnLoad" << endl;
-  Scene::UnLoad();
+    cout << "Scene 2 UnLoad" << endl;
+    Scene::UnLoad();
 }
 
 void Level2Scene::Update(const double& dt)
@@ -179,21 +175,31 @@ void Level2Scene::Update(const double& dt)
             i++;
             if (i % 5 == 0)
             {
+                auto enemies = ls::findTiles(ls::ENEMY);
+
                 numberOfEnemies = rand() % enemies.size();
 
-                for (int k = 0; k < numberOfEnemies; k++)
-                {
+                //for (int k = 0; k < numberOfEnemies; k++)
+                //{
                     //Randomize enemy spawn location on top row
-                    randomIndex = rand() % enemies.size();
 
-                    reroll = false;
-                    enemySpawnLocation = ls::getTilePosition(enemies[randomIndex]) + Vector2f(20.f, 20.f);
+                    reroll = true;
 
-                    for (int l = 0; l < enemyLocations.size(); l++)
+                    while (reroll)
                     {
-                        if (enemySpawnLocation == enemyLocations[l])
+                        reroll = false;
+
+                        randomIndex = rand() % numberOfEnemies;
+
+                        cout << randomIndex << endl;
+                        enemySpawnLocation = ls::getTilePosition(enemies[randomIndex]) + Vector2f(20.f, 20.f);
+
+                        for (int l = 0; l < enemyLocations.size(); l++)
                         {
-                            reroll = true;
+                            if (enemySpawnLocation == enemyLocations[l])
+                            {
+                                reroll = true;
+                            }
                         }
                     }
 
@@ -207,7 +213,7 @@ void Level2Scene::Update(const double& dt)
 
                     std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
 
-                    if (!spritesheet->loadFromFile("res/sprites/rock.png"))
+                    if (!spritesheet->loadFromFile("res/sprites/tabbyCat.png"))
                     {
                         cerr << "Failed to load spritesheet!" << std::endl;
                     }
@@ -218,6 +224,8 @@ void Level2Scene::Update(const double& dt)
                     //Choose random spot to place enemy on screen
                     enemy->setPosition(enemySpawnLocation);
 
+                    cout << enemySpawnLocation << endl;
+
                     //Add item to list of items
                     it2.push_back(j);
                     s2.push_back(is);
@@ -225,7 +233,7 @@ void Level2Scene::Update(const double& dt)
                     enemyLocations.push_back(enemySpawnLocation);
                 }
             }
-        }
+       // }
 
         store = std::chrono::duration_cast<std::chrono::seconds>(dur - _start).count();
 
@@ -239,12 +247,13 @@ void Level2Scene::Update(const double& dt)
 
     a2->PickTarget("MOUSE", sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, 0));
     MouseUpdate();
-	Scene::Update(dt);
+    Scene::Update(dt);
 }
 
-void Level2Scene::Render() 
+void Level2Scene::Render()
 {
-	Scene::Render();
+    ls::render(Engine::GetWindow());
+    Scene::Render();
 }
 
 void Level2Scene::SaveGame() {
@@ -260,12 +269,12 @@ void Level2Scene::SaveGame() {
     }
 
     {
-       //Save high score
-       std::ofstream saveFile("highScoreFile.txt", std::ofstream::out);
+        //Save high score
+        std::ofstream saveFile("highScoreFile.txt", std::ofstream::out);
 
-       saveFile << highScore;
+        saveFile << highScore;
 
-       saveFile.close();
+        saveFile.close();
     }
 
 }

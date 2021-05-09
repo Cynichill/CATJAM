@@ -5,7 +5,7 @@ using namespace std;
 using namespace sf;
 
 std::map<LevelSystem::Tile, sf::Color> LevelSystem::_colours{
-    {WALL, Color::White}, {START, Color::Green}, {EMPTY, Color::Green}, {END, Color::Red} };
+    {WALL, Color::White}, {ENEMY, Color::Black}, {START, Color::Red}, {EMPTY, Color::Green}, {END, Color::Red} };
 
 sf::Color LevelSystem::getColor(LevelSystem::Tile t) {
   auto it = _colours.find(t);
@@ -89,8 +89,8 @@ void LevelSystem::buildSprites(bool optimise) {
     for (size_t x = 0; x < _width; ++x) {
       Tile t = getTile({x, y});
      // if (t == EMPTY) {
-      //  continue;
-     // }
+      // continue;
+    // }
       tps.push_back({getTilePosition({x, y}), tls, getColor(t)});
     }
   }

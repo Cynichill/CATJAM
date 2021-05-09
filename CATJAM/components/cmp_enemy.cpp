@@ -34,9 +34,11 @@ void Enemy::update(double dt) {
     const auto pos = _parent->getPosition();
 
     //Teleport to start if we fall off map.
+    /*
     if (pos.y > ls::getHeight() * ls::getTileSize()) {
         deleteMe = true;
     }
+    */
 
     // Clamp velocity.
     auto v = getVelocity();
@@ -60,5 +62,4 @@ Enemy::Enemy(Entity* p,
     _body->SetFixedRotation(true);
     //Bullet items have higher-res collision detection
     _body->SetBullet(true);
-    ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
 }

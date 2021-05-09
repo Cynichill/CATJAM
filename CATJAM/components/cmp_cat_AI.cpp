@@ -146,7 +146,7 @@ void CatAI::SetChosen(bool chos)
 bool CatAI::GetChosen() { return _locationChosen; }
 
 CatAI::CatAI(Entity* p,
-                                               const Vector2f& size, bool minigameVer, sf::Vector2f maxVelocity)
+                                               const Vector2f& size, bool minigameVer, sf::Vector2f maxVelocity, std::string file)
     : PhysicsComponent(p, true, size) {
   _size = sv2_to_bv2(size, true);
   _maxVelocity = maxVelocity;
@@ -156,5 +156,5 @@ CatAI::CatAI(Entity* p,
   //Bullet items have higher-res collision detection
   _body->SetBullet(true);
   _minigameVer = minigameVer;
-  ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
+  ls::loadLevelFile(file, 40.0f);
 }
