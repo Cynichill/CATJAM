@@ -86,12 +86,13 @@ void Level1Scene::Load() {
     srand(time(NULL));
 
     //Loads in the 'level', used as the boundary
-    cout << " Scene 1 Load" << endl;
+    std::cout << " Scene 1 Load" << std::endl;
     ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
 
+    auto h = Engine::getWindowSize().x - (ls::getWidth() * 40.f);
     auto ho = Engine::getWindowSize().y - (ls::getHeight() * 40.f);
-    ls::setOffset(Vector2f(0, ho));
-
+    ls::setOffset(Vector2f(h, ho));
+    
     // Add physics colliders to level tiles.
     {
         auto walls = ls::findTiles(ls::WALL);
@@ -130,7 +131,7 @@ void Level1Scene::Load() {
         sp->getSprite().setOrigin(50.f, 50.f);
 
         //Add cat AI (pathfinding and state machine)
-        a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f));
+        a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), false, Vector2f(50.f, 50.f));
         a->PickTarget("WANDER");
         a->SetChosen(true);
 
@@ -386,13 +387,13 @@ void Level1Scene::Load() {
     Level1Scene::LoadGame();
     //Simulate long loading times
     //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-    cout << " Scene 1 Load Done" << endl;
+    std::cout << " Scene 1 Load Done" << std::endl;
 
     setLoaded(true);
 }
 
 void Level1Scene::UnLoad() {
-    cout << "Scene 1 Unload" << endl;
+    std::cout << "Scene 1 Unload" << std::endl;
     cat.reset();
     player.reset();
     clockTime.reset();
@@ -749,7 +750,7 @@ void Level1Scene::LoadGame() {
         ifstream myfile("catFile.txt");
         if (!myfile)
         {
-            cout << "Failed to find file" << endl;
+            std::cout << "Failed to find file" << std::endl;
         }
         else
         {
@@ -758,7 +759,7 @@ void Level1Scene::LoadGame() {
             size_t size = myfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                std::cout << "File is empty\n";
             }
             else
             {
@@ -784,7 +785,7 @@ void Level1Scene::LoadGame() {
                 }
                 else
                 {
-                    cout << "Failed to load from file" << endl;
+                    std::cout << "Failed to load from file" << std::endl;
                 }
             }
         }
@@ -795,7 +796,7 @@ void Level1Scene::LoadGame() {
         ifstream myfile("playerFile.txt");
         if (!myfile)
         {
-            cout << "Failed to find file" << endl;
+            std::cout << "Failed to find file" << std::endl;
         }
         else
         {
@@ -804,7 +805,7 @@ void Level1Scene::LoadGame() {
             size_t size = myfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                std::cout << "File is empty\n";
             }
             else
             {
@@ -820,7 +821,7 @@ void Level1Scene::LoadGame() {
                 }
                 else
                 {
-                    cout << "Failed to load from file" << endl;
+                    std::cout << "Failed to load from file" << std::endl;
                 }
             }
         }
@@ -829,7 +830,7 @@ void Level1Scene::LoadGame() {
         ifstream invfile("invFile.txt");
         if (!invfile)
         {
-            cout << "Failed to find file" << endl;
+            std::cout << "Failed to find file" << std::endl;
         }
         else
         {
@@ -837,7 +838,7 @@ void Level1Scene::LoadGame() {
             size_t size = invfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                std::cout << "File is empty\n";
             }
             else
             {
@@ -861,7 +862,7 @@ void Level1Scene::LoadGame() {
         ifstream clockfile("clockFile.txt");
         if (!clockfile)
         {
-            cout << "Failed to find file" << endl;
+            std::cout << "Failed to find file" << std::endl;
         }
         else
         {
@@ -870,7 +871,7 @@ void Level1Scene::LoadGame() {
             size_t size = clockfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                std::cout << "File is empty\n";
             }
             else
             {
@@ -885,7 +886,7 @@ void Level1Scene::LoadGame() {
                 }
                 else
                 {
-                    cout << "Failed to load from file" << endl;
+                    std::cout << "Failed to load from file" << std::endl;
                 }
 
                 std::string hr = time.substr(0, 2);

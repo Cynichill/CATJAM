@@ -12,7 +12,12 @@ public:
 
   void Render() override;
 
+  void SaveGame();
+
+  void LoadGame();
+
+  void MouseUpdate();
 
 private:
-
+	float cursorSpeed;
 };

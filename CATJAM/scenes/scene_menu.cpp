@@ -215,7 +215,7 @@ void MenuScene::MenuSelect()
 		case 0:
 			DeleteSaveData();
 			UnLoad();
-			Engine::ChangeScene(&level1);
+			Engine::ChangeScene(&level2);
 			break;
 		case 1:
 			UnLoad();
