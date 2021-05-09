@@ -11,6 +11,7 @@ using namespace std;
 using namespace sf;
 
 shared_ptr<TextComponent> t[4];
+shared_ptr<TextComponent> title;
 shared_ptr<ShapeComponent> boxes[4];
 shared_ptr<Entity> box;
 shared_ptr<Entity> box2;
@@ -67,6 +68,11 @@ void MenuScene::Load() {
 		  t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
 	  }
 
+	  title = txt->addComponent<TextComponent>();
+	  title->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 - 100, 50));
+	  title->SetText("Cat-atonic");
+	  title->getText().setScale(2,2);
+
 	  ifstream file("resolutionFile.txt");
 	  if (!file)
 	  {
@@ -107,6 +113,8 @@ void MenuScene::Load() {
 		  box3->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 2.9));
 		  box4->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 3.9));
 
+		  title->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 - 100, 25));
+
 		  for (int i = 0; i < 4; ++i) {
 
 			  t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.5, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
@@ -115,7 +123,7 @@ void MenuScene::Load() {
 
 	  selected = 0;
 	  changeMenu = 0;
-	  keyPressed = false;
+	  keyPressed = true;
 	  maxDraw = 4;
 	  controller = false;
   }
@@ -135,6 +143,7 @@ void MenuScene::UnLoad()
 	box2.reset();
 	box3.reset();
 	box4.reset();
+	title.reset();
 	Scene::UnLoad();
 }
 
@@ -430,21 +439,21 @@ void MenuScene::MenuSelect()
 	*/
 	else if (changeMenu == 6)
 	{
-	switch (selected)
-	{
-	case 0:
+		switch (selected)
+		{
+		case 0:
 		
-		break;
-	case 1:
+			break;
+		case 1:
 		
-		break;
-	case 2:
-		changeMenu = 1;
-		MenuChange();
-		break;
-	case 3:
-		break;
-	}
+			break;
+		case 2:
+			changeMenu = 1;
+			MenuChange();
+			break;
+		case 3:
+			break;
+		}
 	}
 }
 
@@ -470,6 +479,7 @@ void MenuScene::MenuChange()
 		{
 			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
 		}
+		title->SetText("Cat-atonic");
 	}
 
 	//Options Menu
@@ -486,6 +496,7 @@ void MenuScene::MenuChange()
 		{
 			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
 		}
+		title->SetText("");
 	}
 
 	//Screens Menu
@@ -502,7 +513,7 @@ void MenuScene::MenuChange()
 		{
 			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
 		}
-
+		title->SetText("");
 	}
 
 	//Resolutions Menu
@@ -519,7 +530,7 @@ void MenuScene::MenuChange()
 		{
 			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
 		}
-
+		title->SetText("");
 	}
 
 	//Windowed Menu
@@ -537,7 +548,7 @@ void MenuScene::MenuChange()
 		{
 			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
 		}
-
+		title->SetText("");
 	}
 
 	//Vsync Menu
@@ -555,7 +566,7 @@ void MenuScene::MenuChange()
 		{
 			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
 		}
-
+		title->SetText("");
 	}
 
 	if (changeMenu == 6)
@@ -572,7 +583,7 @@ void MenuScene::MenuChange()
 		{
 			boxes[i]->getShape().setScale(sf::Vector2f(1, 1));
 		}
-
+		title->SetText("");
 	}
 
 	selected = 0;
@@ -597,6 +608,7 @@ void MenuScene::setSize()
 	box2->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.1, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 1.9));
 	box3->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.1, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 2.9));
 	box4->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.1, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 3.9));
+	title->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 - 100, 50));
 
 	//Changes the position of texes with relation to resolution
 	for (int i = 0; i < 4; i++)
@@ -612,6 +624,7 @@ void MenuScene::setSize()
 		box2->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 1.9));
 		box3->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 2.9));
 		box4->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.6, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * 3.9));
+		title->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 - 100, 25));
 		for (int i = 0; i < 4; ++i) {
 			t[i]->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.5, Engine::getWindowSize().y / (MAX_NUMBER_OF_ITEMS + 1) * (1 + i))); //Sets position of the text based on resolution
 		}

@@ -118,6 +118,18 @@ std::shared_ptr<Entity> Scene::makeEntity() {
   return std::move(e);
 }
 
+std::shared_ptr<Entity> Scene::makeEntityLast() {
+    auto e = make_shared<Entity>(this);
+    auto list = ents.list;
+    ents.list.clear();
+    ents.list.push_back(e);
+    for (int i = 0; i < list.size(); i++)
+    {
+        ents.list.push_back(list.at(i));
+    }
+    return std::move(e);
+}
+
 void Engine::setVsync(bool b) { _window->setVerticalSyncEnabled(b); }
 
 void Engine::ChangeScene(Scene* s) {
