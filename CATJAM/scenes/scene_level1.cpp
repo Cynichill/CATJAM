@@ -105,12 +105,12 @@ void Level1Scene::Load() {
         ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
     }
 
-    if (Engine::getWindowSize().x == 1600)
+    else if (Engine::getWindowSize().x == 1600)
     {
         ls::loadLevelFile("res/levels/gameScene2.txt", 40.0f);
     }
 
-    if (Engine::getWindowSize().x == 1920)
+    else if (Engine::getWindowSize().x == 1920)
     {
         ls::loadLevelFile("res/levels/gameScene3.txt", 40.0f);
     }
@@ -156,7 +156,20 @@ void Level1Scene::Load() {
         sp->getSprite().setOrigin(50.f, 50.f);
 
         //Add cat AI (pathfinding and state machine)
-        a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(40.f, 40.f), "res/levels/gameScene.txt");
+        if (Engine::getWindowSize().x == 800)
+        {
+            a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), false, Vector2f(40.f, 40.f), "res/levels/gameScene.txt");
+        }
+
+        else if (Engine::getWindowSize().x == 1600)
+        {
+            a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), false, Vector2f(40.f, 40.f), "res/levels/gameScene2.txt");
+        }
+
+        else if (Engine::getWindowSize().x == 1920)
+        {
+            a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), false, Vector2f(40.f, 40.f), "res/levels/gameScene3.txt");
+        }
         a->PickTarget("WANDER");
         a->SetChosen(true);
 
@@ -533,6 +546,13 @@ void Level1Scene::UnLoad() {
 
 void Level1Scene::Update(const double& dt) {
 
+    //Testing the evolved cat sprite
+    //if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Space))
+    //{
+    //    keyPressed = true;
+    //    c->SetBond(c->getBond() + 100);
+    //}
+    
     //
     //Ui Stuff
     //
@@ -575,7 +595,6 @@ void Level1Scene::Update(const double& dt) {
     {
         itemClicked = false;
         item = makeEntityLast();
-        item->addTag("last");
 
         //Create item using key from inventory
         auto j = item->addComponent<ItemComponent>(storeItem);
@@ -593,6 +612,18 @@ void Level1Scene::Update(const double& dt) {
 
         is->setTexture(spritesheet);
         is->getSprite().setOrigin(50.f, 50.f);
+        if (storeItem == "Fish")
+        {
+            is->getSprite().setScale(0.4, 0.4);
+        }
+        if (storeItem == "Catnip")
+        {
+            is->getSprite().setScale(0.4, 0.4);
+        }
+        if (storeItem == "YarnBall")
+        {
+            is->getSprite().setScale(0.4, 0.4);
+        }
 
         //Choose random spot to place item on screen
         auto empty = ls::findTiles(ls::EMPTY);
@@ -1217,6 +1248,8 @@ void Level1Scene::Controls()
         if (!keyPressed && sf::Mouse::isButtonPressed(Mouse::Left) && minigame->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
         {
             keyPressed = true;
+            sceneChange = 1;
+            change = true;
             std::cout << "Minigame" << std::endl;
         }
     }
@@ -1708,6 +1741,10 @@ void Level1Scene::SceneChange()
     {
         Engine::GetWindow().setMouseCursorVisible(true);
         Engine::ChangeScene(&menu);
+    }
+    else if (sceneChange = 1)
+    {
+        Engine::ChangeScene(&level2);
     }
     else
     {
