@@ -9,7 +9,6 @@ protected:
   sf::Vector2f _maxVelocity;
   sf::Vector2f _wanderLocation;
   sf::Vector2f _target;
-  bool _grounded;
   float _groundspeed;
   std::string state = "WANDER";
 
@@ -19,8 +18,6 @@ protected:
   bool _minigameVer = false;
 
   std::chrono::time_point<std::chrono::system_clock> _start;
-
-  bool isGrounded() const;
 
 public:
   void update(double dt) override;

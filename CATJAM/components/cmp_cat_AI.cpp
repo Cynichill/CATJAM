@@ -9,28 +9,6 @@ using namespace Physics;
 
 bool timeCheck = false;
 
-bool CatAI::isGrounded() const {
-  auto touch = getTouching();
-  const auto& pos = _body->GetPosition();
-  const float halfPlrHeigt = _size.y * .5f;
-  const float halfPlrWidth = _size.x * .52f;
-  b2WorldManifold manifold;
-  for (const auto& contact : touch) {
-    contact->GetWorldManifold(&manifold);
-    const int numPoints = contact->GetManifold()->pointCount;
-    bool onTop = numPoints > 0;
-    // If all contacts are below the player.
-    for (int j = 0; j < numPoints; j++) {
-      onTop &= (manifold.points[j].y < pos.y - halfPlrHeigt);
-    }
-    if (onTop) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 void CatAI::update(double dt) {
 
         const auto pos = _parent->getPosition();
@@ -173,7 +151,6 @@ CatAI::CatAI(Entity* p,
   _size = sv2_to_bv2(size, true);
   _maxVelocity = maxVelocity;
   _groundspeed = 5.f;
-  _grounded = false;
   _body->SetSleepingAllowed(false);
   _body->SetFixedRotation(true);
   //Bullet items have higher-res collision detection
