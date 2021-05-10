@@ -3,7 +3,7 @@
 #include "Box2D/Box2D.h"
 #include <SFML/System/Vector2.hpp>
 
-namespace Physics {
+namespace AltPhysics {
 	void initialise();
 	void shutdown();
 	void update(const double&);

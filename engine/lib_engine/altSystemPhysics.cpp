@@ -5,13 +5,13 @@
 using namespace std;
 using namespace sf;
 
-namespace Physics {
+namespace AltPhysics {
     static shared_ptr<b2World> world;
     const int32 velocityIterations = 6;
     const int32 positionIterations = 2;
 
     void initialise() {
-        b2Vec2 gravity(0.0f, -9.8f);
+        b2Vec2 gravity(0.0f, 0.0f);
         // Construct a world object, which will hold and simulate the rigid
         // bodies.
         world.reset(new b2World(gravity));

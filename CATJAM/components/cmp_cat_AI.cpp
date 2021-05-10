@@ -20,7 +20,6 @@ void CatAI::update(double dt) {
 
         if (!_minigameVer)
         {
-
             //If not close to target location, move towards it on the correct axis
             if ((pos.x < _target.x - 5 && pos.x < _target.x + 5) || (pos.x > _target.x - 5 && pos.x > _target.x + 5)) {
 
@@ -83,32 +82,48 @@ void CatAI::update(double dt) {
                     }
                 }
             }
+
+            // Clamp velocity.
+            auto v = getVelocity();
+            v.x = copysign(min(abs(v.x), _maxVelocity.x), v.x);
+            v.y = copysign(min(abs(v.y), _maxVelocity.y), v.y);
+            setVelocity(v);
         }
         else
         {
-            //If not close to target location, move towards it on the correct axis
-            if ((pos.x < _target.x - 5 && pos.x < _target.x + 5) || (pos.x > _target.x - 5 && pos.x > _target.x + 5)) {
+            if (!_dead) {
+                //If not close to target location, move towards it on the correct axis
+                if ((pos.x < _target.x - 5 && pos.x < _target.x + 5) || (pos.x > _target.x - 5 && pos.x > _target.x + 5)) {
 
-                // Moving Either Left or Right
-                if (pos.x < _target.x) {
-                    if (getVelocity().x < _maxVelocity.x)
-                        impulse({ (float)(dt * _groundspeed), 0 });
+                    // Moving Either Left or Right
+                    if (pos.x < _target.x) {
+                        if (getVelocity().x < _maxVelocity.x)
+                            impulse({ (float)(dt * _groundspeed), 0 });
+                    }
+                    else if (pos.x > _target.x) {
+                        if (getVelocity().x > -_maxVelocity.x)
+                            impulse({ -(float)(dt * _groundspeed), 0 });
+                    }
                 }
-                else if (pos.x > _target.x) {
-                    if (getVelocity().x > -_maxVelocity.x)
-                        impulse({ -(float)(dt * _groundspeed), 0 });
+                else {
+                    // Dampen X axis movement
+                    dampen({ 0.9f, 1.0f });
                 }
+
+                // Clamp velocity.
+                auto v = getVelocity();
+                v.x = copysign(min(abs(v.x), _maxVelocity.x), v.x);
+                v.y = copysign(min(abs(v.y), _maxVelocity.y), v.y);
+                setVelocity(v);
             }
-            else {
-                // Dampen X axis movement
-                dampen({ 0.9f, 1.0f });
+            else
+            {
+                auto v = getVelocity();
+                v.x = 0;
+                v.y = 0;
+                setVelocity(v);
             }
         }
-  // Clamp velocity.
-  auto v = getVelocity();
-  v.x = copysign(min(abs(v.x), _maxVelocity.x), v.x);
-  v.y = copysign(min(abs(v.y), _maxVelocity.y), v.y);
-  setVelocity(v);
 
   PhysicsComponent::update(dt);
 }
@@ -145,6 +160,12 @@ void CatAI::SetChosen(bool chos)
 
 bool CatAI::GetChosen() { return _locationChosen; }
 
+void CatAI::SetDead(bool dead)
+{
+    _dead = dead;
+}
+bool CatAI::GetDead() { return _dead; };
+
 CatAI::CatAI(Entity* p,
                                                const Vector2f& size, bool minigameVer, sf::Vector2f maxVelocity, std::string file)
     : PhysicsComponent(p, true, size) {
@@ -157,4 +178,5 @@ CatAI::CatAI(Entity* p,
   _body->SetBullet(true);
   _minigameVer = minigameVer;
   ls::loadLevelFile(file, 40.0f);
+  setFriction(0);
 }

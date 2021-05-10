@@ -18,6 +18,8 @@ public:
 
   void MouseUpdate();
 
+  void Retry();
+
 private:
 	float cursorSpeed;
 };
