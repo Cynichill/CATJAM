@@ -18,7 +18,6 @@ int main() {
 	ifstream file("resolutionFile.txt");
 	if (!file)
 	{
-		cout << "Failed to find file" << endl;
 		width = 800;
 		height = 600;
 
@@ -34,7 +33,7 @@ int main() {
 		size_t size = file.tellg();
 		if (size == 0)
 		{
-			cout << "File is empty\n";
+			//Error
 		}
 		else
 		{
@@ -47,7 +46,7 @@ int main() {
 			}
 			else
 			{
-				cout << "Failed to load file" << endl;
+				//Error
 			}
 		}
 	}

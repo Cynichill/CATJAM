@@ -16,6 +16,7 @@
 #include <thread>
 #include <ctime>
 #include <chrono>
+#include "SFML/Audio.hpp"
 
 using namespace std;
 using namespace sf;
@@ -29,6 +30,16 @@ shared_ptr<Entity> txt2;
 shared_ptr<TextComponent> score;
 shared_ptr<TextComponent> hiScore;
 
+
+shared_ptr<ShapeComponent> dieBoxes[2];
+shared_ptr<TextComponent> dieText[2];
+shared_ptr<Entity> retryBox;
+shared_ptr<Entity> quitBox;
+
+
+sf::Sound sound;
+sf::SoundBuffer buffer;
+sf::Music minigameMusic;
 
 /*
 UI STUFF
@@ -68,13 +79,81 @@ bool reroll = false;
 
 void Level2Scene::Load()
 {
+    //Box 1
+    retryBox = makeEntity();
+    dieBoxes[0] = retryBox->addComponent<ShapeComponent>();
+    retryBox->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.1, Engine::getWindowSize().y / 2 - 100)); //Sets position of the hitboxes based on resolution
+    dieBoxes[0]->getShape().setFillColor(sf::Color::White);
+
+    //Box 2
+    quitBox = makeEntity();
+    dieBoxes[1] = quitBox->addComponent<ShapeComponent>();
+    quitBox->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.1, Engine::getWindowSize().y / 2 + 100)); //Sets position of the hitboxes based on resolution
+    dieBoxes[1]->getShape().setFillColor(sf::Color::White);
+
+    shared_ptr<Entity> text = makeEntity();
+
+    for (int i = 0; i < 2; ++i) {
+
+        dieBoxes[i]->setShape<sf::RectangleShape>(sf::Vector2f(250, 100));
+
+        dieText[i] = text->addComponent<TextComponent>();
+        //Sets the text
+        //We have an array of text which contain each item in the menu
+
+        dieText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
+    }
+    dieText[0]->getText().setPosition(retryBox->getPosition());
+    dieText[1]->getText().setPosition(quitBox->getPosition());
+    dieBoxes[0]->getShape().setScale(0, 0);
+    dieBoxes[1]->getShape().setScale(0, 0);
+
+    controller = false;
+    change = false;
+
+    if(controller)
+    {
+        hideMouse = true;
+    }
+
+    if (!controller)
+    {
+        hideMouse = false;
+    }
+
+    if (!buffer.loadFromFile("res/sounds/meow.ogg"));
+    {
+        //Error
+    }
+
+    sound.setBuffer(buffer);
+
+    if (!minigameMusic.openFromFile("res/music/minigame.wav"));
+    {
+        //Error
+    }
+    minigameMusic.setLoop(true);
+    minigameMusic.play();
+    minigameMusic.setVolume(50);
 
     //Creates a new seed for randomization
     srand(time(NULL));
 
     //Loads in the 'level', used as the boundary
-    std::cout << " Scene 2 Load" << std::endl;
-    ls::loadLevelFile("res/levels/minigame.txt", 40.0f);
+    if (Engine::getWindowSize().x == 800)
+    {
+        ls::loadLevelFile("res/levels/minigame.txt", 40.0f);
+    }
+
+    else if (Engine::getWindowSize().x == 1600)
+    {
+        ls::loadLevelFile("res/levels/minigame2.txt", 40.0f);
+    }
+
+    else if (Engine::getWindowSize().x == 1920)
+    {
+        ls::loadLevelFile("res/levels/minigame3.txt", 40.0f);
+    }
 
     auto h = Engine::getWindowSize().x - (ls::getWidth() * 40.f);
     auto ho = Engine::getWindowSize().y - (ls::getHeight() * 40.f);
@@ -105,7 +184,7 @@ void Level2Scene::Load()
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
 
         if (!spritesheet->loadFromFile("res/sprites/tabbyCat.png")) {
-            cerr << "Failed to load spritesheet!" << std::endl;
+            //Error
         }
 
         //Create cat's sprite
@@ -114,7 +193,20 @@ void Level2Scene::Load()
         sp2->getSprite().setOrigin(50.f, 50.f);
 
         //Add cat AI (pathfinding and state machine)
-        a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 0.0f), "res/levels/minigame.txt");
+        if (Engine::getWindowSize().x == 800)
+        {
+            a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 0.f), "res/levels/minigame.txt");
+        }
+
+        else if (Engine::getWindowSize().x == 1600)
+        {
+            a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 0.f), "res/levels/minigame2.txt");
+        }
+
+        else if (Engine::getWindowSize().x == 1920)
+        {
+            a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 0.f), "res/levels/minigame3.txt");
+        }
         a2->SetDead(false);
 
     }
@@ -163,7 +255,8 @@ void Level2Scene::Load()
 
     hiScore->SetText("High Score: " + std::to_string(highScore));
 
-    cout << " Scene 2 Load Done" << endl;
+    lose = false;
+
     setLoaded(true);
 }
 
@@ -190,12 +283,24 @@ void Level2Scene::UnLoad()
     score.reset();
     hiScore.reset();
 
-    cout << "Scene 2 UnLoad" << endl;
+    retryBox.reset();
+    quitBox.reset();
+
+    for (int i = 0; i < 2; i++)
+    {
+        dieBoxes[i].reset();
+        dieText[i].reset();
+    }
+
+    minigameMusic.stop();
+
     Scene::UnLoad();
 }
 
 void Level2Scene::Update(const double& dt)
 {
+    Engine::GetWindow().setMouseCursorVisible(hideMouse);
+
     if (!_startTime)
     {
         _start = std::chrono::system_clock::now();
@@ -269,7 +374,7 @@ void Level2Scene::Update(const double& dt)
 
                         if (!spritesheet->loadFromFile("res/sprites/rock.png"))
                         {
-                            cerr << "Failed to load spritesheet!" << std::endl;
+                            //Error
                         }
 
                         is2->setTexture(spritesheet);
@@ -301,9 +406,9 @@ void Level2Scene::Update(const double& dt)
 
             if (!lose && (cat2->getPosition().y > enemyEnts[k]->getPosition().y - rangeY && cat2->getPosition().y < enemyEnts[k]->getPosition().y + rangeY) && (cat2->getPosition().x > enemyEnts[k]->getPosition().x - rangeX && cat2->getPosition().x < enemyEnts[k]->getPosition().x + rangeX))
             {
-                cout << "game over" << endl;
                 lose = true;
                 a2->SetDead(true);
+                sound.play();
 
                 it2[k]->SetDelete(true);
             }
@@ -333,7 +438,29 @@ void Level2Scene::Update(const double& dt)
     }
 
     a2->PickTarget("MOUSE", sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, 0));
-    MouseUpdate();
+
+    if (a2->GetDead())
+    {
+        SpawnBox();
+        Highlight();
+    }
+
+    Controls();
+
+    if (!controller)
+    {
+        MouseUpdate();
+    }
+
+    if (controller)
+    {
+        KeyboardUpdate();
+    }
+
+    if (change)
+    {
+        Engine::ChangeScene(&level1);
+    }
     Scene::Update(dt);
 }
 
@@ -374,7 +501,7 @@ void Level2Scene::LoadGame()
         ifstream myfile("catFile.txt");
         if (!myfile)
         {
-            std::cout << "Failed to find file" << std::endl;
+            //Error
         }
         else
         {
@@ -383,7 +510,7 @@ void Level2Scene::LoadGame()
             size_t size = myfile.tellg();
             if (size == 0)
             {
-                std::cout << "File is empty\n";
+                //Error
             }
             else
             {
@@ -409,7 +536,7 @@ void Level2Scene::LoadGame()
                 }
                 else
                 {
-                    std::cout << "Failed to load from file" << std::endl;
+                    //Error
                 }
             }
         }
@@ -420,7 +547,7 @@ void Level2Scene::LoadGame()
         ifstream myfile("playerFile.txt");
         if (!myfile)
         {
-            std::cout << "Failed to find file" << std::endl;
+            //Error
         }
         else
         {
@@ -429,7 +556,7 @@ void Level2Scene::LoadGame()
             size_t size = myfile.tellg();
             if (size == 0)
             {
-                std::cout << "File is empty\n";
+                //Error
             }
             else
             {
@@ -445,7 +572,7 @@ void Level2Scene::LoadGame()
                 }
                 else
                 {
-                    std::cout << "Failed to load from file" << std::endl;
+                    //Error
                 }
             }
         }
@@ -456,7 +583,7 @@ void Level2Scene::LoadGame()
         ifstream myfile("highScoreFile.txt");
         if (!myfile)
         {
-            std::cout << "Failed to find file" << std::endl;
+            //Error
         }
         else
         {
@@ -465,7 +592,7 @@ void Level2Scene::LoadGame()
             size_t size = myfile.tellg();
             if (size == 0)
             {
-                std::cout << "File is empty\n";
+                //Error
             }
             else
             {
@@ -478,9 +605,43 @@ void Level2Scene::LoadGame()
                 }
                 else
                 {
-                    std::cout << "Failed to load from file" << std::endl;
+                    //Error
                 }
             }
+        }
+    }
+}
+
+void Level2Scene::Retry()
+{
+    Level2Scene::SaveGame();
+    Level2Scene::UnLoad();
+    Level2Scene::Load();
+
+}
+
+void Level2Scene::SpawnBox()
+{
+    dieBoxes[0]->getShape().setScale(1, 1);
+    dieBoxes[1]->getShape().setScale(1, 1);
+    dieText[0]->SetText("Retry");
+    dieText[1]->SetText("Quit");
+}
+
+//Highlights the option selected
+void Level2Scene::Highlight()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (dieBoxes[i]->getShape().getGlobalBounds().contains(cursorSprite2->getPosition()))
+        {
+            dieBoxes[i]->getShape().setFillColor(sf::Color::Blue); //Sets Colour of the hitboxes
+            dieText[i]->getText().setColor(sf::Color::Red); //Sets colour of text
+        }
+        else
+        {
+            dieBoxes[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+            dieText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
         }
     }
 }
@@ -490,10 +651,96 @@ void Level2Scene::MouseUpdate()
     cursorSprite2->setPosition(sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, sf::Mouse::getPosition(Engine::GetWindow()).y));
 }
 
-void Level2Scene::Retry()
+//Moves the sprite with Keyboard buttons
+void Level2Scene::KeyboardUpdate()
 {
-    Level2Scene::SaveGame();
-    Level2Scene::UnLoad();
-    Level2Scene::Load();
+    //Move cursor Down
+    if (cursorSprite2->getPosition().y <= Engine::getWindowSize().y - 16.0f && sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+    {
+        cursorSprite2->setPosition(sf::Vector2f(cursorSprite2->getPosition().x, cursorSprite2->getPosition().y + cursorSpeed));
+    }
 
+    //Move cursor Up
+    if (cursorSprite2->getPosition().y >= 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+    {
+        cursorSprite2->setPosition(sf::Vector2f(cursorSprite2->getPosition().x, cursorSprite2->getPosition().y - cursorSpeed));
+    }
+
+    //Move cursor Right
+    if (cursorSprite2->getPosition().x <= Engine::getWindowSize().x - 16.0f && sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        cursorSprite2->setPosition(sf::Vector2f(cursorSprite2->getPosition().x + cursorSpeed, cursorSprite2->getPosition().y));
+    }
+
+    //Move cursor Left
+    if (cursorSprite2->getPosition().x >= 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
+        cursorSprite2->setPosition(sf::Vector2f(cursorSprite2->getPosition().x - cursorSpeed, cursorSprite2->getPosition().y));
+    }
+}
+
+void Level2Scene::Controls()
+{
+    //Mouse Controls
+    if (!controller)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            //Normal UI
+            if (!keyPressed && sf::Mouse::isButtonPressed(Mouse::Left) && dieBoxes[i]->getShape().getGlobalBounds().contains(cursorSprite2->getPosition()))
+            {
+                keyPressed = true;
+                if (i == 0)
+                {
+                    Retry();
+                }
+                if (i == 1)
+                {
+                    change = true;
+                }
+            }
+        }
+    }
+
+    //Mouse Controls
+    if (controller)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            //Normal UI
+            if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Enter) && dieBoxes[i]->getShape().getGlobalBounds().contains(cursorSprite2->getPosition()))
+            {
+                keyPressed = true;
+                if (i == 0)
+                {
+                    Retry();
+                }
+                if (i == 1)
+                {
+                    change = true;
+                }
+            }
+        }
+    }
+
+    if (!sf::Mouse::isButtonPressed(Mouse::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::F3) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+        keyPressed = false;
+    }
+
+    if (!keyPressed && sf::Keyboard::isKeyPressed(sf::Keyboard::F3))
+    {
+        keyPressed = true;
+        if (controller)
+        {
+            controller = false;
+            hideMouse = !hideMouse;
+        }
+        else if (!controller)
+        {
+            controller = true;
+            cursorSprite2->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2, Engine::getWindowSize().y / 2));
+            hideMouse = !hideMouse;
+        }
+    }
 }

@@ -20,7 +20,6 @@ shared_ptr<Entity> box4;
 sf::Music music;
 
 void MenuScene::Load() {
-  cout << "Menu Load \n";
   {
 	  //Box 1
 	  box = makeEntity();
@@ -77,7 +76,7 @@ void MenuScene::Load() {
 	  ifstream file("resolutionFile.txt");
 	  if (!file)
 	  {
-		  cout << "Failed to find file" << endl;
+		  //Error
 	  }
 	  else
 	  {
@@ -86,7 +85,7 @@ void MenuScene::Load() {
 		  size_t size = file.tellg();
 		  if (size == 0)
 		  {
-			  cout << "File is empty\n";
+			  //Error
 		  }
 		  else
 		  {
@@ -101,7 +100,7 @@ void MenuScene::Load() {
 			  }
 			  else
 			  {
-				  cout << "Failed to load file" << endl;
+				  //Error
 			  }
 		  }
 	  }
@@ -131,8 +130,7 @@ void MenuScene::Load() {
 	  //Music
 	  if (!music.openFromFile("res/music/menu.wav"))
 	  {
-		  cout << "Failed to load music" << endl;
-		  //error
+		  //Error
 	  }
 	  music.setLoop(true);
 	  music.play();
@@ -305,7 +303,7 @@ void MenuScene::MenuSelect()
 		switch (selected)
 		{
 		case 0:
-			std::cout << "Sound button has been pressed" << std::endl;
+			//Error
 			break;
 		case 1:
 			changeMenu = 2;
@@ -651,11 +649,6 @@ void MenuScene::setSize()
 
 }
 
-bool MenuScene::controllerType()
-{
-	return controller;
-}
-
 void MenuScene::DeleteSaveData()
 {
 	ofstream myfile("catFile.txt");
@@ -665,7 +658,7 @@ void MenuScene::DeleteSaveData()
 
 	if (!myfile)
 	{
-		cout << "Failed to find file" << endl;
+		//Error
 	}
 	{
 		myfile.open("catFile.txt");
@@ -675,7 +668,7 @@ void MenuScene::DeleteSaveData()
 
 	if (!myfile2)
 	{
-		cout << "Failed to find file" << endl;
+		//Error
 	}
 	else
 	{
@@ -687,7 +680,7 @@ void MenuScene::DeleteSaveData()
 
 	if (!myfile3)
 	{
-		cout << "Failed to find file" << endl;
+		//Error
 	}
 	else
 	{
@@ -699,7 +692,7 @@ void MenuScene::DeleteSaveData()
 
 	if (!myfile4)
 	{
-		cout << "Failed to find file" << endl;
+		//Error
 	}
 	else
 	{

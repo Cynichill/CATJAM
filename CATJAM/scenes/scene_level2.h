@@ -20,6 +20,18 @@ public:
 
   void Retry();
 
+  void SpawnBox();
+
+  void KeyboardUpdate();
+
+  void Highlight();
+
+  void Controls();
+
 private:
 	float cursorSpeed;
+	bool keyPressed;
+	bool controller;
+	bool change;
+	bool hideMouse;
 };

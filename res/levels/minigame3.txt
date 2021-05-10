@@ -5,7 +5,6 @@ w                                              w
 w                                              w
 w                                              w
 w                                              w
-w                s                             w
 w                                              w
 w                                              w
 w                                              w
@@ -22,6 +21,7 @@ w                                              w
 w                                              w
 w                                              w
 w                                              w
-ww                                            ww
+w                                              w
+ww       s                                    ww
 wwddddddddddddddddddddddddddddddddddddddddddddww
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww

@@ -477,13 +477,11 @@ void Level1Scene::Load() {
     Level1Scene::LoadGame();
     //Simulate long loading times
     //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-    cout << " Scene 1 Load Done" << endl;
 
     setLoaded(true);
 }
 
 void Level1Scene::UnLoad() {
-    cout << "Scene 1 Unload" << endl;
     cat.reset();
     player.reset();
     clockTime.reset();
@@ -623,7 +621,7 @@ void Level1Scene::Update(const double& dt) {
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
 
         if (!spritesheet->loadFromFile(j->GetSpriteLocation())) {
-            cerr << "Failed to load spritesheet!" << std::endl;
+            //Error
         }
 
         is->setTexture(spritesheet);
@@ -876,7 +874,7 @@ void Level1Scene::LoadGame() {
         ifstream myfile("catFile.txt");
         if (!myfile)
         {
-            cout << "Failed to find file" << endl;
+            //Error
         }
         else
         {
@@ -885,7 +883,7 @@ void Level1Scene::LoadGame() {
             size_t size = myfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                //Error
             }
             else
             {
@@ -911,7 +909,7 @@ void Level1Scene::LoadGame() {
                 }
                 else
                 {
-                    cout << "Failed to load from file" << endl;
+                    //Error
                 }
             }
         }
@@ -922,7 +920,7 @@ void Level1Scene::LoadGame() {
         ifstream myfile("playerFile.txt");
         if (!myfile)
         {
-            cout << "Failed to find file" << endl;
+            //Error
         }
         else
         {
@@ -931,7 +929,7 @@ void Level1Scene::LoadGame() {
             size_t size = myfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                //Error
             }
             else
             {
@@ -947,7 +945,7 @@ void Level1Scene::LoadGame() {
                 }
                 else
                 {
-                    cout << "Failed to load from file" << endl;
+                    //Error
                 }
             }
         }
@@ -956,7 +954,7 @@ void Level1Scene::LoadGame() {
         ifstream invfile("invFile.txt");
         if (!invfile)
         {
-            cout << "Failed to find file" << endl;
+            //Error
         }
         else
         {
@@ -964,7 +962,7 @@ void Level1Scene::LoadGame() {
             size_t size = invfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                //Error
             }
             else
             {
@@ -988,7 +986,7 @@ void Level1Scene::LoadGame() {
         ifstream clockfile("clockFile.txt");
         if (!clockfile)
         {
-            cout << "Failed to find file" << endl;
+            //Error
         }
         else
         {
@@ -997,7 +995,7 @@ void Level1Scene::LoadGame() {
             size_t size = clockfile.tellg();
             if (size == 0)
             {
-                cout << "File is empty\n";
+                //Error
             }
             else
             {
@@ -1012,7 +1010,7 @@ void Level1Scene::LoadGame() {
                 }
                 else
                 {
-                    cout << "Failed to load from file" << endl;
+                    //Error
                 }
 
                 std::string hr = time.substr(0, 2);
@@ -1272,7 +1270,6 @@ void Level1Scene::Controls()
             keyPressed = true;
             sceneChange = 1;
             change = true;
-            std::cout << "Minigame" << std::endl;
         }
     }
 
@@ -1437,7 +1434,8 @@ void Level1Scene::Controls()
         if (!keyPressed && sf::Keyboard::isKeyPressed(Keyboard::Enter) && minigame->getShape().getGlobalBounds().contains(cursorSprite->getPosition()))
         {
             keyPressed = true;
-            std::cout << "Minigame" << std::endl;
+            sceneChange = 1;
+            change = true;
         }
     }
 

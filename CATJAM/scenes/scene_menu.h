@@ -25,7 +25,6 @@ public:
   void MenuSelect();
   void setSize();
   void DeleteSaveData();
-  bool controllerType();
 
 
 private:
