@@ -101,7 +101,6 @@ void Level1Scene::Load() {
     srand(time(NULL));
 
     //Loads in the 'level', used as the boundary
-    cout << " Scene 1 Load" << endl;
     if (Engine::getWindowSize().x == 800)
     {
         ls::loadLevelFile("res/levels/gameScene.txt", 40.0f);
@@ -143,7 +142,7 @@ void Level1Scene::Load() {
         c = cat->addComponent<CatComponent>("Tabby", "Fluffy", "Female", "CannedCatFood", 4);
 
         std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
-
+        
         if (!spritesheet->loadFromFile("res/sprites/tabbyCat.png")) {
             //error
         }
@@ -172,6 +171,7 @@ void Level1Scene::Load() {
         {
             a = cat->addComponent<CatAI>(Vector2f(60.f, 40.f), false, Vector2f(40.f, 40.f), "res/levels/gameScene3.txt");
         }
+        //Pick first target
         a->PickTarget("WANDER");
         a->SetChosen(true);
 
@@ -181,7 +181,7 @@ void Level1Scene::Load() {
     {
         player = makeEntity();
 
-        p = player->addComponent<PlayerComponent>("PlayerName", 500.00);
+        p = player->addComponent<PlayerComponent>("Me!", 500.00);
         //Fill inventory
         p->baseInventory();
     }
@@ -221,7 +221,7 @@ void Level1Scene::Load() {
     boxEntity = makeEntity();
     box = boxEntity->addComponent<ShapeComponent>();
     box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
-    box->getShape().setFillColor(sf::Color::White); 
+    box->getShape().setFillColor(sf::Color::Orange); 
     box->getShape().setOutlineColor(sf::Color::Black);
 
     boxEntity->setVisible(false);
@@ -234,7 +234,7 @@ void Level1Scene::Load() {
     stillUi[0] = date->addComponent<ShapeComponent>();
     date->setPosition(sf::Vector2f(Engine::getWindowSize().x - 180, 2)); //Sets position of the Box based on resolution
     stillUi[0]->setShape<sf::RectangleShape>(sf::Vector2f(175, 40));
-    stillUi[0]->getShape().setFillColor(sf::Color::White); //Sets Colour of the Box
+    stillUi[0]->getShape().setFillColor(sf::Color::Orange); //Sets Colour of the Box
     stillUi[0]->getShape().setOutlineColor(sf::Color::Black);
 
 
@@ -243,7 +243,7 @@ void Level1Scene::Load() {
     stillUi[1] = currency->addComponent<ShapeComponent>();
     currency->setPosition(sf::Vector2f(Engine::getWindowSize().x - 180, 44)); //Sets position of the Box based on resolution
     stillUi[1]->setShape<sf::RectangleShape>(sf::Vector2f(175, 40));
-    stillUi[1]->getShape().setFillColor(sf::Color::White); //Sets Colour of the Box
+    stillUi[1]->getShape().setFillColor(sf::Color::Orange); //Sets Colour of the Box
     stillUi[1]->getShape().setOutlineColor(sf::Color::Black);
 
 
@@ -252,7 +252,7 @@ void Level1Scene::Load() {
     stillUi[2] = food->addComponent<ShapeComponent>();
     food->setPosition(sf::Vector2f(boxEntity->getPosition().x + 25, 5)); //Sets position of the Box based on resolution
     stillUi[2]->setShape<sf::RectangleShape>(sf::Vector2f(150, 50));
-    stillUi[2]->getShape().setFillColor(sf::Color::Black); //Sets Colour of the Box
+    stillUi[2]->getShape().setFillColor(sf::Color::Blue); //Sets Colour of the Box
     stillUi[2]->getShape().setOutlineColor(sf::Color::Black);
     stillUi[2]->getShape().setScale(0, 0);
 
@@ -261,7 +261,7 @@ void Level1Scene::Load() {
     stillUi[3] = toys->addComponent<ShapeComponent>();
     toys->setPosition(sf::Vector2f(boxEntity->getPosition().x + 225, 5)); //Sets position of the Box based on resolution
     stillUi[3]->setShape<sf::RectangleShape>(sf::Vector2f(150, 50));
-    stillUi[3]->getShape().setFillColor(sf::Color::Black); //Sets Colour of the Box
+    stillUi[3]->getShape().setFillColor(sf::Color::Blue); //Sets Colour of the Box
     stillUi[3]->getShape().setOutlineColor(sf::Color::Black);
     stillUi[3]->getShape().setScale(0, 0);
 
@@ -274,6 +274,7 @@ void Level1Scene::Load() {
     ui[0] = options->addComponent<ShapeComponent>();
     options->setPosition(sf::Vector2f(Engine::getWindowSize().x - 175, 88)); //Sets position of the Box based on resolution
     ui[0]->setShape<sf::RectangleShape>(sf::Vector2f(50, 50));
+    ui[0]->getShape().setFillColor(sf::Color::Orange);
     ui[0]->getShape().setOutlineColor(sf::Color::Black); //Sets Colour of the Box
 
 
@@ -282,6 +283,7 @@ void Level1Scene::Load() {
     ui[1] = tutorial->addComponent<ShapeComponent>();
     tutorial->setPosition(sf::Vector2f(Engine::getWindowSize().x - 60, 88)); //Sets position of the Box based on resolution
     ui[1]->setShape<sf::RectangleShape>(sf::Vector2f(50, 50));
+    ui[1]->getShape().setFillColor(sf::Color::Orange);
     ui[1]->getShape().setOutlineColor(sf::Color::Black); //Sets Colour of the Box
 
 
@@ -290,6 +292,7 @@ void Level1Scene::Load() {
     ui[2] = shop->addComponent<ShapeComponent>();
     shop->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 - 100, 0)); //Sets position of the Box based on resolution
     ui[2]->setShape<sf::ConvexShape>(shopShape);
+    ui[2]->getShape().setFillColor(sf::Color::Orange);
     ui[2]->getShape().setOutlineColor(sf::Color::Black);
 
 
@@ -298,6 +301,7 @@ void Level1Scene::Load() {
     ui[3] = inventory->addComponent<ShapeComponent>();
     inventory->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 + 100, 0)); //Sets position of the Box based on resolution
     ui[3]->setShape<sf::ConvexShape>(inventoryShape);
+    ui[3]->getShape().setFillColor(sf::Color::Orange);
     ui[3]->getShape().setOutlineColor(sf::Color::Black);
 
 
@@ -306,7 +310,8 @@ void Level1Scene::Load() {
     ui[4] = catBox->addComponent<ShapeComponent>();
     catBox->setPosition(sf::Vector2f(0, 88)); //Sets position of the Box based on resolution
     ui[4]->setShape<sf::RectangleShape>(sf::Vector2f(50, 50));
-    ui[4]->getShape().setOutlineColor(sf::Color::White);
+    ui[4]->getShape().setFillColor(sf::Color::Orange);
+    ui[4]->getShape().setOutlineColor(sf::Color::Orange);
 
 
     //Slots for Inventory + Shop
@@ -339,12 +344,12 @@ void Level1Scene::Load() {
     minigame = minigameEntity->addComponent<ShapeComponent>();
     minigameEntity->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 - 75, Engine::getWindowSize().y - 50)); //Sets position of the Box based on resolution
     minigame->setShape<sf::RectangleShape>(sf::Vector2f(150, 50));
-    minigame->getShape().setFillColor(sf::Color::White);
+    minigame->getShape().setFillColor(sf::Color::Orange);
 
     for (int i = 0; i < 6; i++)
     {
         slots[i]->setShape<sf::RectangleShape>(sf::Vector2f(150, 50));
-        slots[i]->getShape().setFillColor(sf::Color::Black);
+        slots[i]->getShape().setFillColor(sf::Color::Yellow);
         slots[i]->getShape().setOutlineColor(sf::Color::Black);
         slots[i]->getShape().setScale(0, 0);
     }
@@ -418,7 +423,7 @@ void Level1Scene::Load() {
     //Makes mouse sprite
     std::shared_ptr<Texture> cursor = std::make_shared<sf::Texture>();;
     cursorSprite = makeEntity();
-
+  
     if (!cursor->loadFromFile("res/sprites/mouse.png"))
     {
         //Error
@@ -623,8 +628,11 @@ void Level1Scene::Update(const double& dt) {
         if (!spritesheet->loadFromFile(j->GetSpriteLocation())) {
             //Error
         }
+        else
+        {
+            is->setTexture(spritesheet);
+        }
 
-        is->setTexture(spritesheet);
         is->getSprite().setOrigin(50.f, 50.f);
         if (storeItem == "Fish")
         {
@@ -712,6 +720,7 @@ void Level1Scene::Update(const double& dt) {
             c->SetHealth(c->getHealth() - 5);
         }
 
+        //Every 10 minutes (in game), check if health = 100, if health = 100 for 30 mins, add 1 to bond tracker
         if (c->getHealth() < 100)
         {
             bondTracker = 0;
@@ -720,18 +729,21 @@ void Level1Scene::Update(const double& dt) {
         {
             bondTracker++;
         }
-
+         
+        //if bond tracker >= 3, add 1 bond point
         if (bondTracker >= 3)
         {
             c->SetBond(c->getBond() + 1);
         }
 
+        //if bond = 100, evolve cat
         if (c->getBond() == 100.0f)
         {
             bondReached = true;
             bondTracker = 0;
         }
 
+        //change sprite for evolution
         if (bondReached)
         {
             sp->setTexture(spritesheet2);
@@ -765,9 +777,11 @@ void Level1Scene::Update(const double& dt) {
                 a->PickTarget("WANDER");
             }
         }
+        //If the cat is dirty and items exist
         else if (c->getCleanliness() < 20.0f && !itemLocations.empty() && a->GetTarget() != previousTarget)
         {
             bathFound = false;
+            //Search for a bath item
             for (int k = 0; k < items.size(); k++)
             {
                 if (it[k]->GetKey() == "CatBath")
@@ -1042,7 +1056,7 @@ void Level1Scene::Highlight()
         }
         else
         {
-            ui[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+            ui[i]->getShape().setFillColor(sf::Color::Orange); //Sets Colour of the hitboxes
             if (i < 4)
             {
                 uiText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
@@ -1059,7 +1073,7 @@ void Level1Scene::Highlight()
         }
         else
         {
-            slots[i]->getShape().setFillColor(sf::Color::Black); //Sets Colour of the hitboxes
+            slots[i]->getShape().setFillColor(sf::Color::Magenta); //Sets Colour of the hitboxes
         }
     }
 
@@ -1091,7 +1105,7 @@ void Level1Scene::Highlight()
     }
     else
     {
-        minigame->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+        minigame->getShape().setFillColor(sf::Color::Orange); //Sets Colour of the hitboxes
         uiText[4]->getText().setColor(sf::Color::Black); //Sets colour of text
     }
 }
@@ -1505,6 +1519,9 @@ void Level1Scene::LoadMenu()
         //Background for inventory & shop
         boxEntity->setPosition(sf::Vector2f(shop->getPosition().x - 100, 0)); //Sets position of the hitboxes based on resolution
         box->setShape<sf::RectangleShape>(sf::Vector2f(400, 499));
+        box->getShape().setFillColor(sf::Color::Orange);
+        box->getShape().setOutlineColor(sf::Color::Black);
+
         boxEntity->setVisible(true);
 
         //Sets the position for each of the shop/inventory items boxes and text
@@ -1536,6 +1553,8 @@ void Level1Scene::LoadMenu()
     {
         boxEntity->setPosition(sf::Vector2f(ui[4]->getShape().getPosition().x, ui[4]->getShape().getPosition().y)); //Sets position of the hitboxes based on resolution
         box->setShape<sf::RectangleShape>(sf::Vector2f(300, 300));
+        box->getShape().setFillColor(sf::Color::Orange);
+        box->getShape().setOutlineColor(sf::Color::Black);
         boxEntity->setVisible(true);
     }
 }

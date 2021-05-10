@@ -21,7 +21,6 @@ static RenderWindow* _window;
 void Loading_update(float dt, const Scene* const scn) {
   //  cout << "Eng: Loading Screen\n";
   if (scn->isLoaded()) {
-    cout << "Eng: Exiting Loading Screen\n";
     loading = false;
   } else {
     loadingspinner += 220.0f * dt;
@@ -133,7 +132,6 @@ std::shared_ptr<Entity> Scene::makeEntityLast() {
 void Engine::setVsync(bool b) { _window->setVerticalSyncEnabled(b); }
 
 void Engine::ChangeScene(Scene* s) {
-  cout << "Eng: changing scene: " << s << endl;
   auto old = _activeScene;
   _activeScene = s;
 
@@ -142,7 +140,6 @@ void Engine::ChangeScene(Scene* s) {
   }
 
   if (!s->isLoaded()) {
-    cout << "Eng: Entering Loading Screen\n";
     loadingTime =0;
     _activeScene->LoadAsync();
     loading = true;

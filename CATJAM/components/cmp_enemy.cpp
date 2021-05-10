@@ -11,7 +11,7 @@ void Enemy::update(double dt) {
 
     const auto pos = _parent->getPosition();
 
-
+    //If enemy hits a wall or despawn tile, set for delete
     if (ls::getTileAt(pos) == ls::DESPAWN || ls::getTileAt(pos) == ls::WALL)
     {
         deleteMe = true;

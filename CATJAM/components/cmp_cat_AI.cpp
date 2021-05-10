@@ -18,6 +18,7 @@ void CatAI::update(double dt) {
             teleport(ls::getTilePosition(ls::findTiles(ls::START)[0]));
         }
 
+        //If cat is main scene cat
         if (!_minigameVer)
         {
             //If not close to target location, move towards it on the correct axis
@@ -91,6 +92,7 @@ void CatAI::update(double dt) {
         }
         else
         {
+            //if minigame cat, and if not dead
             if (!_dead) {
                 //If not close to target location, move towards it on the correct axis
                 if ((pos.x < _target.x - 5 && pos.x < _target.x + 5) || (pos.x > _target.x - 5 && pos.x > _target.x + 5)) {
@@ -145,7 +147,7 @@ void CatAI::PickTarget(std::string targ, Vector2f& targLocation)
         _target = targLocation;
     }
     
-
+    //Unpause cat wander, move again
     _tPause = false;
 }
 

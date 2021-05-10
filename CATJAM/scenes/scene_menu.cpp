@@ -45,7 +45,7 @@ void MenuScene::Load() {
 	  for (int i = 0; i < 4; i++)
 	  {
 		  boxes[i]->setShape<sf::RectangleShape>(sf::Vector2f(250, 100));
-		  boxes[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+		  boxes[i]->getShape().setFillColor(sf::Color::Orange); //Sets Colour of the hitboxes
 	  }
 
 	  //Text
@@ -71,6 +71,7 @@ void MenuScene::Load() {
 	  title = txt->addComponent<TextComponent>();
 	  title->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 2 - 100, 50));
 	  title->SetText("Cat-atonic");
+	  title->getText().setColor(sf::Color::Orange);
 	  title->getText().setScale(2,2);
 
 	  ifstream file("resolutionFile.txt");
@@ -159,7 +160,6 @@ void MenuScene::UnLoad()
 
 //Updates each frame
 void MenuScene::Update(const double& dt) {
-  // cout << "Menu Update "<<dt<<"\n";
 
 	MouseCheck();
 	MenuControls();
@@ -193,7 +193,7 @@ void MenuScene::Highlight()
 		}
 		else
 		{
-			boxes[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+			boxes[i]->getShape().setFillColor(sf::Color::Orange); //Sets Colour of the hitboxes
 			t[i]->getText().setColor(sf::Color::Black); //Sets colour of text
 		}
 	}
@@ -655,11 +655,13 @@ void MenuScene::DeleteSaveData()
 	ofstream myfile2("playerFile.txt");
 	ofstream myfile3("clockFile.txt");
 	ofstream myfile4("invFile.txt");
+	ofstream myfile5("highScoreFile.txt");
 
 	if (!myfile)
 	{
 		//Error
 	}
+	else
 	{
 		myfile.open("catFile.txt");
 		remove("catFile.txt");
@@ -698,6 +700,18 @@ void MenuScene::DeleteSaveData()
 	{
 		myfile4.open("invFile.txt");
 		remove("invFile.txt");
+	}
+
+	myfile4.close();
+
+	if (!myfile5)
+	{
+		//Error
+	}
+	else
+	{
+		myfile5.open("highScoreFile.txt");
+		remove("highScoreFile.txt");
 	}
 
 	myfile4.close();

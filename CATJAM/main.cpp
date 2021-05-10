@@ -15,6 +15,7 @@ Level2Scene level2;
 
 int main() {
 
+	//Load resolution options from file
 	ifstream file("resolutionFile.txt");
 	if (!file)
 	{

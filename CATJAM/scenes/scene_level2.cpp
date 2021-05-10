@@ -84,13 +84,13 @@ void Level2Scene::Load()
     retryBox = makeEntity();
     dieBoxes[0] = retryBox->addComponent<ShapeComponent>();
     retryBox->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.1, Engine::getWindowSize().y / 2 - 100)); //Sets position of the hitboxes based on resolution
-    dieBoxes[0]->getShape().setFillColor(sf::Color::White);
+    dieBoxes[0]->getShape().setFillColor(sf::Color::Orange);
 
     //Box 2
     quitBox = makeEntity();
     dieBoxes[1] = quitBox->addComponent<ShapeComponent>();
     quitBox->setPosition(sf::Vector2f(Engine::getWindowSize().x / 2.1, Engine::getWindowSize().y / 2 + 100)); //Sets position of the hitboxes based on resolution
-    dieBoxes[1]->getShape().setFillColor(sf::Color::White);
+    dieBoxes[1]->getShape().setFillColor(sf::Color::Orange);
 
     shared_ptr<Entity> text = makeEntity();
 
@@ -221,6 +221,7 @@ void Level2Scene::Load()
         player2 = makeEntity();
 
         p2 = player2->addComponent<PlayerComponent>("PlayerName", 500.00);
+
         //Fill inventory
         p2->baseInventory();
     }
@@ -237,6 +238,7 @@ void Level2Scene::Load()
         cursorEntity2 = cursorSprite2->addComponent<SpriteComponent>();
         cursorEntity2->setTexture(cursor);
         cursorEntity2->getSprite().setPosition(0, 0);
+        cursorEntity2->getSprite().setOrigin(50.f, 50.f);
         cursorSpeed = 0.15f;
     }
 
@@ -259,6 +261,8 @@ void Level2Scene::Load()
     Level2Scene::LoadGame();
 
     hiScore->SetText("High Score: " + std::to_string(highScore));
+
+    Engine::GetWindow().setMouseCursorVisible(hideMouse);
 
     lose = false;
 
@@ -304,8 +308,7 @@ void Level2Scene::UnLoad()
 
 void Level2Scene::Update(const double& dt)
 {
-    Engine::GetWindow().setMouseCursorVisible(hideMouse);
-
+    //On retry, start new timer
     if (!_startTime)
     {
         _start = std::chrono::system_clock::now();
@@ -322,17 +325,18 @@ void Level2Scene::Update(const double& dt)
 
         if (seconds != store)
         {
+            //track score/seconds
             i++;
 
             if (lose)
             {
+                //reset score on loss
                 i = 0;
             }
             score->SetText("Score: " + std::to_string(i));
             if (!lose)
             {
-                cout << i << endl;
-
+                //Every 5 seconds, spawn wave of enemies
                 if ((i % 5) == 0)
                 {
 
@@ -346,6 +350,7 @@ void Level2Scene::Update(const double& dt)
 
                         reroll = true;
 
+                        //Make sure enemies dont overlap squares
                         while (reroll)
                         {
                             reroll = false;
@@ -382,6 +387,7 @@ void Level2Scene::Update(const double& dt)
                             //Error
                         }
 
+                        //Set sprite
                         is2->setTexture(spritesheet);
                         is2->getSprite().setScale(0.4f, 0.4f);
                         is2->getSprite().setOrigin(50.f, 50.f);
@@ -406,18 +412,21 @@ void Level2Scene::Update(const double& dt)
     //For each enemy..
     if (!enemyEnts.empty())
     {
+        //For each enemy check if the cat has collided with any
         for (int k = 0; k < enemyEnts.size(); k++)
         {
-
             if (!lose && (cat2->getPosition().y > enemyEnts[k]->getPosition().y - rangeY && cat2->getPosition().y < enemyEnts[k]->getPosition().y + rangeY) && (cat2->getPosition().x > enemyEnts[k]->getPosition().x - rangeX && cat2->getPosition().x < enemyEnts[k]->getPosition().x + rangeX))
             {
+                //If cat collides with enemy, game over
                 lose = true;
                 a2->SetDead(true);
                 sound.play();
 
+                //Change sprite to dead sprite
                 sp2->setTexture(spritesheet3);
                 sp2->getSprite().setOrigin(50.f, 50.f);
 
+                //Mark collided rock for deletion
                 it2[k]->SetDelete(true);
             }
             //Check if enemy should be deleted
@@ -433,9 +442,13 @@ void Level2Scene::Update(const double& dt)
         }
     }
 
+    //When the player loses..
     if (lose)
     {
+        //Hand out currency
         p2->SetCurrency(p2->getCurrency() + (i * 50));
+
+        //Set high score if score beats olds one
         if (i > highScore)
         {
             highScore = i;
@@ -445,8 +458,10 @@ void Level2Scene::Update(const double& dt)
         i = 0;
     }
 
-    a2->PickTarget("MOUSE", sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, 0));
+    //Make cat follow mouse
+    a2->PickTarget("MOUSE", sf::Vector2f(cursorSprite2->getPosition()));
 
+    //Spawn UI if cat dies
     if (a2->GetDead())
     {
         SpawnBox();
@@ -467,6 +482,7 @@ void Level2Scene::Update(const double& dt)
 
     if (change)
     {
+        Level2Scene::SaveGame();
         Engine::ChangeScene(&level1);
     }
     Scene::Update(dt);
@@ -648,7 +664,7 @@ void Level2Scene::Highlight()
         }
         else
         {
-            dieBoxes[i]->getShape().setFillColor(sf::Color::White); //Sets Colour of the hitboxes
+            dieBoxes[i]->getShape().setFillColor(sf::Color::Orange); //Sets Colour of the hitboxes
             dieText[i]->getText().setColor(sf::Color::Black); //Sets colour of text
         }
     }

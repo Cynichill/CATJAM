@@ -16,7 +16,7 @@ namespace Resources {
   std::shared_ptr<sf::Texture> load(const std::string& name) {
     auto tex = std::make_shared<sf::Texture>();
     if (!tex->loadFromFile("res/img/" + name)) {
-      throw("not found: " + name);
+        //error
     };
     return tex;
   };
