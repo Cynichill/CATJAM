@@ -128,7 +128,7 @@ void Level2Scene::Load()
     {
         player2 = makeEntity();
 
-        p2 = player2->addComponent<PlayerComponent>("PlayerName", 2000.00);
+        p2 = player2->addComponent<PlayerComponent>("PlayerName", 500.00);
         //Fill inventory
         p2->baseInventory();
     }
