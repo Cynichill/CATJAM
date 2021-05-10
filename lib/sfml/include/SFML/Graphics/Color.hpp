@@ -89,6 +89,7 @@ public:
     static const Color Magenta;     //!< Magenta predefined color
     static const Color Cyan;        //!< Cyan predefined color
     static const Color Transparent; //!< Transparent (black) predefined color
+    static const Color DarkGreen;
 
     ////////////////////////////////////////////////////////////
     // Member data

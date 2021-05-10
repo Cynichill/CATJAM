@@ -51,5 +51,5 @@ int main() {
 			}
 		}
 	}
-  Engine::Start(width, height, "Platformer",&menu);
+  Engine::Start(width, height, "Cat-Atonic",&menu);
 }
