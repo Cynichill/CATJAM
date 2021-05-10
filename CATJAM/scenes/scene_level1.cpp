@@ -1462,7 +1462,7 @@ void Level1Scene::Controls()
             controller = false;
             hideMouse = !hideMouse;
         }
-        if (!controller)
+        else if (!controller)
         {
             controller = true;
             cursorSprite->setPosition(sf::Vector2f(Engine::getWindowSize().x/2, Engine::getWindowSize().y/2));
