@@ -7,6 +7,7 @@
 #include "../components/cmp_item.h";
 #include "../components/cmp_text.h"
 #include "../components/cmp_enemy.h"
+#include "../components/cmp_physics.h"
 #include "../game.h"
 #include <LevelSystem.h>
 #include <iostream>
@@ -18,6 +19,20 @@
 
 using namespace std;
 using namespace sf;
+
+/*
+UI STUFF
+*/
+
+shared_ptr<Entity> txt;
+shared_ptr<Entity> txt2;
+shared_ptr<TextComponent> score;
+shared_ptr<TextComponent> hiScore;
+
+
+/*
+UI STUFF
+*/
 
 static shared_ptr<Entity> cat2;
 std::shared_ptr<CatComponent> c2;
@@ -44,7 +59,7 @@ int numberOfEnemies = 0;
 sf::Vector2f enemySpawnLocation;
 
 std::vector<shared_ptr<Entity>> enemyEnts;
-static shared_ptr<Entity> enemy;
+static shared_ptr<Entity> enem;
 std::vector<std::shared_ptr<Enemy>> it2;
 std::vector<std::shared_ptr<SpriteComponent>>s2;
 std::vector<Vector2f> enemyLocations;
@@ -99,7 +114,8 @@ void Level2Scene::Load()
         sp2->getSprite().setOrigin(50.f, 50.f);
 
         //Add cat AI (pathfinding and state machine)
-        a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 200.f), "res/levels/minigame.txt");
+        a2 = cat2->addComponent<CatAI>(Vector2f(60.f, 40.f), true, Vector2f(200.f, 0.0f), "res/levels/minigame.txt");
+        a2->SetDead(false);
 
     }
 
@@ -127,6 +143,25 @@ void Level2Scene::Load()
         cursorSpeed = 0.15f;
     }
 
+    //UI STUFF
+    txt = makeEntity();
+    txt2 = makeEntity();
+
+    score = txt->addComponent<TextComponent>();
+    score->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x / 5 - 100, 80));
+    score->getText().setScale(1, 1);
+    score->getText().setColor(sf::Color::Black);
+
+    score->SetText("Score: " + std::to_string(i));
+
+    hiScore = txt2->addComponent<TextComponent>();
+    hiScore->getText().setPosition(sf::Vector2f(Engine::getWindowSize().x - 300, 80));
+    hiScore->getText().setScale(1, 1);
+    hiScore->getText().setColor(sf::Color::Black);
+
+    Level2Scene::LoadGame();
+
+    hiScore->SetText("High Score: " + std::to_string(highScore));
 
     cout << " Scene 2 Load Done" << endl;
     setLoaded(true);
@@ -148,7 +183,12 @@ void Level2Scene::UnLoad()
     it2.clear();
     s2.clear();
     enemyLocations.clear();
-    enemy.reset();
+    enem.reset();
+
+    txt.reset();
+    txt2.reset();
+    score.reset();
+    hiScore.reset();
 
     cout << "Scene 2 UnLoad" << endl;
     Scene::UnLoad();
@@ -173,76 +213,123 @@ void Level2Scene::Update(const double& dt)
         if (seconds != store)
         {
             i++;
-            if (i % 5 == 0)
+
+            if (lose)
             {
-                auto enemies = ls::findTiles(ls::ENEMY);
+                i = 0;
+            }
+            score->SetText("Score: " + std::to_string(i));
+            if (!lose)
+            {
+                cout << i << endl;
 
-                numberOfEnemies = rand() % enemies.size();
+                if ((i % 5) == 0)
+                {
 
-                //for (int k = 0; k < numberOfEnemies; k++)
-                //{
-                    //Randomize enemy spawn location on top row
+                    auto enemies = ls::findTiles(ls::ENEMY);
 
-                    reroll = true;
+                    numberOfEnemies = rand() % 3 + 4;
 
-                    while (reroll)
+                    for (int k = 0; k < numberOfEnemies; k++)
                     {
-                        reroll = false;
+                        //Randomize enemy spawn location on top row
 
-                        randomIndex = rand() % numberOfEnemies;
+                        reroll = true;
 
-                        cout << randomIndex << endl;
-                        enemySpawnLocation = ls::getTilePosition(enemies[randomIndex]) + Vector2f(20.f, 20.f);
-
-                        for (int l = 0; l < enemyLocations.size(); l++)
+                        while (reroll)
                         {
-                            if (enemySpawnLocation == enemyLocations[l])
+                            reroll = false;
+
+                            randomIndex = rand() % enemies.size();
+
+                            enemySpawnLocation = ls::getTilePosition(enemies[randomIndex]) + Vector2f(20.f, 20.f);
+
+                            for (int l = 0; l < enemyLocations.size(); l++)
                             {
-                                reroll = true;
+                                if (enemySpawnLocation == enemyLocations[l])
+                                {
+                                    reroll = true;
+                                }
                             }
                         }
+
+                        enem = makeEntity();
+
+                        //Choose random spot to place enemy on screen
+                        enem->setPosition(enemySpawnLocation);
+
+                        //Create enemy
+                        auto j2 = enem->addComponent<Enemy>(Vector2f(40.f, 20.f), Vector2f(0.f, 100.0f));
+
+                        //Create sprite for enemy
+                        auto is2 = enem->addComponent<SpriteComponent>();
+
+
+                        std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
+
+                        if (!spritesheet->loadFromFile("res/sprites/rock.png"))
+                        {
+                            cerr << "Failed to load spritesheet!" << std::endl;
+                        }
+
+                        is2->setTexture(spritesheet);
+                        is2->getSprite().setScale(0.4f, 0.4f);
+                        is2->getSprite().setOrigin(50.f, 50.f);
+
+                        //Add item to list of items
+                        it2.push_back(j2);
+                        s2.push_back(is2);
+                        enemyEnts.push_back(enem);
+                        enemyLocations.push_back(enemySpawnLocation);
                     }
-
-                    enemy = makeEntity();
-
-                    //Create enemy
-                    auto j = enemy->addComponent<Enemy>(Vector2f(60.f, 40.f), Vector2f(50.f, 50.f));
-
-                    //Create sprite for enemy
-                    auto is = enemy->addComponent<SpriteComponent>();
-
-                    std::shared_ptr<sf::Texture> spritesheet = std::make_shared<sf::Texture>();
-
-                    if (!spritesheet->loadFromFile("res/sprites/tabbyCat.png"))
-                    {
-                        cerr << "Failed to load spritesheet!" << std::endl;
-                    }
-
-                    is->setTexture(spritesheet);
-                    is->getSprite().setOrigin(50.f, 50.f);
-
-                    //Choose random spot to place enemy on screen
-                    enemy->setPosition(enemySpawnLocation);
-
-                    cout << enemySpawnLocation << endl;
-
-                    //Add item to list of items
-                    it2.push_back(j);
-                    s2.push_back(is);
-                    enemyEnts.push_back(enemy);
-                    enemyLocations.push_back(enemySpawnLocation);
                 }
             }
-       // }
+        }
+        enemyLocations.clear();
 
         store = std::chrono::duration_cast<std::chrono::seconds>(dur - _start).count();
 
     }
 
+    int rangeX = 60;
+    int rangeY = 40;
+    //For each enemy..
+    if (!enemyEnts.empty())
+    {
+        for (int k = 0; k < enemyEnts.size(); k++)
+        {
+
+            if (!lose && (cat2->getPosition().y > enemyEnts[k]->getPosition().y - rangeY && cat2->getPosition().y < enemyEnts[k]->getPosition().y + rangeY) && (cat2->getPosition().x > enemyEnts[k]->getPosition().x - rangeX && cat2->getPosition().x < enemyEnts[k]->getPosition().x + rangeX))
+            {
+                cout << "game over" << endl;
+                lose = true;
+                a2->SetDead(true);
+
+                it2[k]->SetDelete(true);
+            }
+            //Check if enemy should be deleted
+            if (it2[k]->GetDelete())
+            {
+
+                //Delete enemy
+                enemyEnts[k]->setForDelete();
+                enemyEnts.erase(enemyEnts.begin() + k);
+                it2.erase(it2.begin() + k);
+                s2.erase(s2.begin() + k);
+            }
+        }
+    }
+
     if (lose)
     {
         p2->SetCurrency(p2->getCurrency() + (i * 50));
-        highScore = i;
+        if (i > highScore)
+        {
+            highScore = i;
+            hiScore->SetText("High Score: " + std::to_string(highScore));
+        }
+
+        i = 0;
     }
 
     a2->PickTarget("MOUSE", sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, 0));
@@ -401,4 +488,12 @@ void Level2Scene::LoadGame()
 void Level2Scene::MouseUpdate()
 {
     cursorSprite2->setPosition(sf::Vector2f(sf::Mouse::getPosition(Engine::GetWindow()).x - 7.0f, sf::Mouse::getPosition(Engine::GetWindow()).y));
+}
+
+void Level2Scene::Retry()
+{
+    Level2Scene::SaveGame();
+    Level2Scene::UnLoad();
+    Level2Scene::Load();
+
 }

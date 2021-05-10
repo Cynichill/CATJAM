@@ -16,6 +16,7 @@ protected:
   bool _startTime = false;
   bool _locationChosen = false;
   bool _minigameVer = false;
+  bool _dead = false;
 
   std::chrono::time_point<std::chrono::system_clock> _start;
 
@@ -32,6 +33,10 @@ public:
   void SetChosen(bool chos);
 
   bool GetChosen();
+
+  bool GetDead();
+
+  void SetDead(bool dead);
 
 
   CatAI() = delete;

@@ -22,6 +22,7 @@ public:
     END = 'e',
     WALL = 'w',
     ENEMY = 'n',
+    DESPAWN = 'd',
     WAYPOINT = '+'
   };
 
