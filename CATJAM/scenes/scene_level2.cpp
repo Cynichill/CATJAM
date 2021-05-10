@@ -49,6 +49,7 @@ static shared_ptr<Entity> cat2;
 std::shared_ptr<CatComponent> c2;
 std::shared_ptr<CatAI> a2;
 std::shared_ptr<SpriteComponent> sp2;
+std::shared_ptr<sf::Texture> spritesheet3 = std::make_shared<sf::Texture>();
 
 static shared_ptr<Entity> player2;
 std::shared_ptr<PlayerComponent> p2;
@@ -187,6 +188,10 @@ void Level2Scene::Load()
             //Error
         }
 
+        if (!spritesheet3->loadFromFile("res/sprites/deadTabbyCat.png")) {
+            cerr << "Failed to load spritesheet!" << std::endl;
+        }
+
         //Create cat's sprite
         sp2 = cat2->addComponent<SpriteComponent>();
         sp2->setTexture(spritesheet);
@@ -215,7 +220,7 @@ void Level2Scene::Load()
     {
         player2 = makeEntity();
 
-        p2 = player2->addComponent<PlayerComponent>("PlayerName", 2000.00);
+        p2 = player2->addComponent<PlayerComponent>("PlayerName", 500.00);
         //Fill inventory
         p2->baseInventory();
     }
@@ -225,7 +230,7 @@ void Level2Scene::Load()
         std::shared_ptr<Texture> cursor = std::make_shared<sf::Texture>();;
         cursorSprite2 = makeEntity();
 
-        if (!cursor->loadFromFile("res/sprites/mouse.png"))
+        if (!cursor->loadFromFile("res/sprites/laserPointer.png"))
         {
             //Error
         }
@@ -409,6 +414,9 @@ void Level2Scene::Update(const double& dt)
                 lose = true;
                 a2->SetDead(true);
                 sound.play();
+
+                sp2->setTexture(spritesheet3);
+                sp2->getSprite().setOrigin(50.f, 50.f);
 
                 it2[k]->SetDelete(true);
             }
